@@ -36,20 +36,11 @@ const clerk = useClerk()
         :appearance="{
           elements: {
             avatarBox: {
-              style: {
-                height: '100px',
-                width: '40px',
-                border: '2px solid #6366f1',
-                'border-radius': '50%',
-              },
+              width: '40px',
+              height: '40px',
+              
             },
-            userButtonPopoverCard: {
-              style: {
-                background: 'white',
-                'border-radius': '0.5rem',
-                'box-shadow': '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-              },
-            },
+            userButtonPopoverCard: {},
           },
         }"
       />
