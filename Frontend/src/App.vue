@@ -2,39 +2,51 @@
 import SignIn from '@/components/SignIn.vue'
 import { useAuth, useUser } from '@clerk/vue'
 import { useUserStore } from './stores/user'
-import { onMounted, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const { user } = useUser()
 const userStore = useUserStore()
-const { isSignedIn } = useAuth()
+const { isLoaded, isSignedIn } = useAuth()
 
-onMounted(() => {
+const updateUserStore = () => {
   if (isSignedIn.value && user.value) {
     userStore.setUser({
       id: user.value.id,
-      email: user.value.primaryEmailAddress?.emailAddress || '',
+      email: user.value.emailAddresses[0]?.emailAddress || '',
     })
   } else {
     userStore.clearUser()
   }
-})
+}
 
-watch(isSignedIn, (SignedIn) => {
-  if (!SignedIn) userStore.clearUser()
-})
+onMounted(updateUserStore)
+
+watch(isSignedIn, updateUserStore, { immediate: true })
+
+const isUserSignedIn = computed(() => userStore.isSignIn)
+const isNotDashboard = computed(() => route.path !== '/dashboard')
 </script>
 
 <template>
   <div id="app">
-    <header class="p-4 border-b">
-      <div class="container mx-auto flex justify-end gap-4">
-        <router-link
-          v-if="userStore.isSignIn && $route.path !== '/dashboard'"
+    <header class="p-4 bg-orange-lightest shadow-md">
+      <div class="container mx-auto flex items-center justify-between" v-if=" isLoaded">
+        <div class="flex items-center ">
+          <router-link to="/">
+            <img src="@/assets/image/logo1.png" alt="logo" class="h-45 w-45 mr-2">
+          </router-link>
+        </div>
+        <div v-if="isLoaded" class="flex gap-4 items-center justify-end">
+          <router-link
+          v-if="isUserSignedIn && isNotDashboard"
           to="/dashboard"
-          class="bg-blue-600 text-white px-4 py-2 rounded gap-2"
+          class="bg-orange-dark text-slate-900 font-bold px-4 py-2 rounded gap-2"
           >Panel Użytkownika</router-link
-        >
-        <SignIn />
+          >
+          <SignIn />
+        </div>
       </div>
     </header>
     <main>
