@@ -32,18 +32,18 @@ const isNotDashboard = computed(() => route.path !== '/dashboard')
 <template>
   <div id="app">
     <header class="p-4 bg-orange-lightest shadow-md">
-      <div class="container mx-auto flex items-center justify-between" v-if=" isLoaded">
-        <div class="flex items-center ">
+      <div class="container mx-auto flex items-center justify-between" v-if="isLoaded">
+        <div class="flex items-center">
           <router-link to="/">
-            <img src="@/assets/image/logo1.png" alt="logo" class="h-45 w-45 mr-2">
+            <img src="@/assets/image/logo1.png" alt="logo" class="h-45 w-45 mr-2" />
           </router-link>
         </div>
         <div v-if="isLoaded" class="flex gap-4 items-center justify-end">
           <router-link
-          v-if="isUserSignedIn && isNotDashboard"
-          to="/dashboard"
-          class="bg-orange-dark text-slate-900 font-bold px-4 py-2 rounded gap-2"
-          >Panel Użytkownika</router-link
+            v-if="isUserSignedIn && isNotDashboard"
+            to="/dashboard"
+            class="bg-orange-dark text-slate-900 font-bold px-4 py-2 rounded gap-2"
+            >Panel Użytkownika</router-link
           >
           <SignIn />
         </div>

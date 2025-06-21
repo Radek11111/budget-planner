@@ -1,34 +1,35 @@
-import { z } from "zod";
+import type { FastifyInstance } from "fastify";
+import { zodToJsonSchema } from "zod-to-json-schema";
 import { db } from "../db";
 import BudgetSchema from "../validation/BudgetSchema";
-import { FastifyInstance } from "fastify";
-import { zodToJsonSchema } from "zod-to-json-schema";
-import { BudgetQuerySchema } from "../validation/BudgetQuerySchema";
-import { CreateBudget } from "../types";
-
+import { CreateBudget } from "../types/types";
+import { authMiddleware } from "../middleware/authMiddleware";
+import { z } from "zod";
 
 async function budgetRoutes(server: FastifyInstance) {
   console.log("✅ budgetRoutes registered");
 
   server.get(
-    "/",{
-      schema: {
-        querystring: zodToJsonSchema(BudgetQuerySchema),
-      },
+    "/",
+    {
+      preHandler: authMiddleware,
     },
     async (request, reply) => {
       try {
-        const { userId } = BudgetQuerySchema.parse(request.query);
+        if (!request.user) {
+          return reply.status(401).send({ error: "Unauthorized" });
+        }
+
+        const userId = request.user.id;
         const budgets = await db.budget.findMany({
           where: { userId },
         });
         return budgets;
       } catch (error) {
-        return reply.status(400).send({error: "Invalid query parameters"});
-        
+        return reply.status(400).send({ error: "Invalid query parameters" });
       }
     }
-  )
+  );
 
   server.post<{ Body: CreateBudget }>(
     "/",
@@ -72,8 +73,8 @@ async function budgetRoutes(server: FastifyInstance) {
             details: error.errors || "Invalid budget data",
           });
         }
+        return reply.status(500).send({ error: "Internal server error" });
       }
-      return reply.status(500).send({ error: "Internal server error" });
     }
   );
 }

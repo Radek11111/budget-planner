@@ -2,6 +2,7 @@
 import { useClerk } from '@clerk/vue'
 import { SignedIn, SignedOut, UserButton } from '@clerk/vue'
 
+
 const clerk = useClerk()
 </script>
 

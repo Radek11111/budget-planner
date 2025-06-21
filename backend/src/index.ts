@@ -2,7 +2,14 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import dotenv from "dotenv";
 import budgetRoutes from "./routes/budget";
+import "fastify";
+import { User } from "@clerk/backend";
 
+declare module "fastify" {
+  interface FastifyRequest {
+    user?: User;
+  }
+}
 
 dotenv.config();
 
