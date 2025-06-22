@@ -6,9 +6,16 @@
 .bg-orange-light {
   background-color: #fdbe74;
 }
+.bg-orange-light-medium {
+  background-color: #ffcd94;
+}
 .bg-orange-medium {
   background-color: #fba454;
 }
 .bg-orange-dark {
   background-color: #f87917;
+}
+
+.text-orange {
+  color: #ffb347;
 }
