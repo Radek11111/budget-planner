@@ -31,18 +31,24 @@ async function budgetRoutes(server: FastifyInstance) {
     }
   );
 
-  server.post<{ Body: CreateBudget }>(
+  server.post<{ Body: Omit<CreateBudget, "userId"> }>(
     "/",
     {
+      preHandler: authMiddleware,
       schema: {
-        body: zodToJsonSchema(BudgetSchema),
+        body: zodToJsonSchema(BudgetSchema.omit({ userId: true })),
       },
     },
     async (request, reply) => {
       try {
-        const validatedData = BudgetSchema.parse(request.body);
+        const userId = request.user?.id;
+        if (!userId) {
+          return reply.status(401).send({ error: "Unauthorized" });
+        }
+        const validatedData = BudgetSchema.omit({ userId: true }).parse(
+          request.body
+        );
         const {
-          userId,
           name,
           total,
           incomes = [],
@@ -73,6 +79,28 @@ async function budgetRoutes(server: FastifyInstance) {
             details: error.errors || "Invalid budget data",
           });
         }
+        return reply.status(500).send({ error: "Internal server error" });
+      }
+    }
+  );
+
+  server.delete(
+    "/:id",
+    {
+      preHandler: authMiddleware,
+    },
+    async (request, reply) => {
+      try {
+        const { id } = request.params as { id: string };
+        const budget = await db.budget.findUnique({
+          where: { id },
+        });
+        if (!budget || budget.userId !== request.user?.id) {
+          return reply.status(404).send({ error: "Budget not found" });
+        }
+        await db.budget.delete({ where: { id } });
+        return reply.status(204).send();
+      } catch (error) {
         return reply.status(500).send({ error: "Internal server error" });
       }
     }

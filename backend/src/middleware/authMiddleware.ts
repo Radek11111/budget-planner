@@ -36,3 +36,5 @@ export async function authMiddleware(
     return reply.status(401).send({ error: "Unauthorized" });
   }
 }
+
+
