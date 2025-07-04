@@ -18,6 +18,8 @@ model Budget {
   incomes     Income[]
   expenses    Expense[]
   savings     Saving[]
+
+   @@unique([userId, name])
 }
 
 model Income {

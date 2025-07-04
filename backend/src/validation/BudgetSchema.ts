@@ -36,4 +36,5 @@ const BudgetSchema = z.object({
     .optional(),
 });
 
-export default BudgetSchema;
+
+export default BudgetSchema ;

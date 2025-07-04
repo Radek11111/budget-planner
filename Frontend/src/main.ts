@@ -5,8 +5,15 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
-import { FaPiggyBank, FaShoppingCart, IoWalletOutline, LaAngleDoubleDownSolid, PxPlus } from 'oh-vue-icons/icons'
-addIcons(IoWalletOutline, FaShoppingCart, FaPiggyBank, LaAngleDoubleDownSolid, PxPlus)
+import {
+  FaPiggyBank,
+  FaShoppingCart,
+  IoWalletOutline,
+  LaAngleDoubleDownSolid,
+  PxPlus,
+  LaSpinnerSolid,
+} from 'oh-vue-icons/icons'
+addIcons(IoWalletOutline, FaShoppingCart, FaPiggyBank, LaAngleDoubleDownSolid, PxPlus, LaSpinnerSolid)
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 

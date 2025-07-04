@@ -1,12 +1,202 @@
-<script setup>
-import { ref } from 'vue'
+<script setup lang="ts">
+import { createBudgetAPI } from '@/api/budget'
+import type { Budget } from '@/types'
+import { useAuth } from '@clerk/vue'
+import { computed, onMounted, ref } from 'vue'
 
+const { getToken } = useAuth()
+const token = ref<string>('')
+const budgetAPI = ref<ReturnType<typeof createBudgetAPI>>()
+
+// Dane formularza
+const newEarningDate = ref('')
+const newEarningAmount = ref<number | null>(null)
+const newEarningCategory = ref('')
+const newEarningDescription = ref('')
+
+const newExpenseDate = ref('')
+const newExpenseAmount = ref<number | null>(null)
+const newExpenseCategory = ref('')
+const newExpenseDescription = ref('')
+
+const newSavingsDate = ref('')
+const newSavingsAmount = ref<number | null>(null)
+const newSavingsCategory = ref('')
+const newSavingsDescription = ref('')
+
+// Stan aplikacji
+const budgets = ref<Budget[]>([])
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+
+// Inicjalizacja autentykacji i API
+const initialize = async () => {
+  try {
+    const tokenFn = getToken.value // Pobieramy funkcję z ComputedRef
+    const fetchedToken = await tokenFn() // Wywołujemy funkcję
+
+    if (!fetchedToken) {
+      throw new Error('Brak tokenu autoryzacyjnego')
+    }
+
+    token.value = fetchedToken
+    budgetAPI.value = createBudgetAPI(token.value)
+    await loadBudgets()
+
+    // Ustaw dzisiejszą datę jako domyślną
+    const today = new Date().toISOString().split('T')[0]
+    newEarningDate.value = today
+    newExpenseDate.value = today
+    newSavingsDate.value = today
+  } catch (err) {
+    error.value = 'Błąd inicjalizacji: ' + (err instanceof Error ? err.message : 'Nieznany błąd')
+    console.error(err)
+  }
+}
+
+// Pobieranie danych
+const loadBudgets = async () => {
+  if (!budgetAPI.value) return
+
+  isLoading.value = true
+  error.value = null
+  try {
+    budgets.value = await budgetAPI.value.fetchBudgets()
+  } catch (err) {
+    error.value = 'Wystąpił błąd podczas ładowania danych'
+    console.error(err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Dodawanie nowego wpisu
+const handleAddBudget = async (type: 'earning' | 'expense' | 'saving') => {
+  if (!budgetAPI.value) {
+    error.value = 'API nie zostało zainicjalizowane'
+    return
+  }
+
+  try {
+    let payload: Omit<Budget, 'id' | 'userId' | 'createdAt'>
+
+    if (type === 'earning') {
+      if (
+        !newEarningAmount.value ||
+        !newEarningDate.value ||
+        !newEarningCategory.value ||
+        !newEarningDescription.value
+      )
+        throw new Error('Wszystkie pola są wymagane')
+      payload = {
+        date: newEarningDate.value,
+        amount: newEarningAmount.value,
+        category: newEarningCategory.value,
+        description: newEarningDescription.value,
+        type,
+      }
+    } else if (type === 'expense') {
+      if (
+        !newExpenseAmount.value ||
+        !newExpenseDate.value ||
+        !newExpenseCategory.value ||
+        !newExpenseDescription.value
+      )
+        throw new Error('Wszystkie pola są wymagane')
+      payload = {
+        date: newExpenseDate.value,
+        amount: newExpenseAmount.value,
+        category: newExpenseCategory.value,
+        description: newExpenseDescription.value,
+        type,
+      }
+    } else {
+      if (
+        !newExpenseAmount.value ||
+        !newExpenseDate.value ||
+        !newExpenseCategory.value ||
+        !newExpenseDescription.value
+      )
+        throw new Error('Wszystkie pola są wymagane')
+      payload = {
+        date: newSavingsDate.value,
+        amount: newSavingsAmount.value ?? 0,
+        category: newSavingsCategory.value,
+        description: newSavingsDescription.value,
+        type,
+      }
+    }
+
+    await budgetAPI.value.addBudget(payload)
+    await loadBudgets()
+    resetForm(type)
+  } catch (err) {
+    error.value =
+      'Błąd podczas dodawania wpisu: ' + (err instanceof Error ? err.message : 'Nieznany błąd')
+    console.error(err)
+  }
+}
+
+// Resetowanie formularza
+const resetForm = (type: 'earning' | 'expense' | 'saving') => {
+  if (type === 'earning') {
+    newEarningDate.value = ''
+    newEarningAmount.value = null
+    newEarningCategory.value = ''
+    newEarningDescription.value = ''
+  } else if (type === 'expense') {
+    newExpenseDate.value = ''
+    newExpenseAmount.value = null
+    newExpenseCategory.value = ''
+    newExpenseDescription.value = ''
+  } else {
+    newSavingsDate.value = ''
+    newSavingsAmount.value = null
+    newSavingsCategory.value = ''
+    newSavingsDescription.value = ''
+  }
+}
+
+// Usuwanie wpisu
+const handleDeleteBudget = async (id: string) => {
+  if (!budgetAPI.value) {
+    error.value = 'API nie zostało zainicjalizowane'
+    return
+  }
+
+  try {
+    await budgetAPI.value.deleteBudget(id)
+    await loadBudgets()
+  } catch (err) {
+    error.value =
+      'Błąd podczas usuwania wpisu: ' + (err instanceof Error ? err.message : 'Nieznany błąd')
+    console.error(err)
+  }
+}
+
+// Filtrowane listy
+const earnings = computed(() => budgets.value.filter((item) => item.type === 'earning'))
+const expenses = computed(() => budgets.value.filter((item) => item.type === 'expense'))
+const savings = computed(() => budgets.value.filter((item) => item.type === 'saving'))
+
+// Sumy
+const totalEarnings = computed(() => earnings.value.reduce((sum, item) => sum + item.amount, 0))
+const totalExpenses = computed(() => expenses.value.reduce((sum, item) => sum + item.amount, 0))
+const totalSavings = computed(() => savings.value.reduce((sum, item) => sum + item.amount, 0))
+
+// Inicjalizacja komponentu
+onMounted(() => {
+  initialize()
+})
+
+// UI
 const activeTab = ref('earnings')
 const tabs = [
   { id: 'earnings', name: 'Zarobki', icon: 'io-wallet-outline' },
   { id: 'expenses', name: 'Wydatki', icon: 'fa-shopping-cart' },
   { id: 'savings', name: 'Oszczędności', icon: 'fa-piggy-bank' },
 ]
+
 const earningCategories = ['Wynagrodzenie', 'Własna działaność', 'Inwestycje', 'Prezenty', 'Inne']
 const expenseCategories = [
   'Mieszkanie',
@@ -32,7 +222,17 @@ const savingCategories = [
 
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="container mx-auto px-4 py-8 max-w-7xl">
+    <div
+      v-if="error"
+      class="bg-red-100 border border-red-400 text-red-700 p-4 py-3 rounded relative"
+      role="alert"
+    >
+      <span class="">{{ error }}</span>
+    </div>
+    <div v-if="isLoading" class="flex justify-center items-center py-8">
+      <v-icon name="la-spinner-solid" scale="3" fill="orange" animation="spin" />
+    </div>
+    <div v-else class="container mx-auto px-4 py-8 max-w-7xl">
       <!-- Header -->
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-orange">Planer Budżetu</h1>
@@ -147,14 +347,14 @@ const savingCategories = [
           <!-- Earnings Tab -->
           <div v-if="activeTab === 'earnings'" class="animate-fadeIn">
             <h2 class="tex-xl font-semibold text-gray-800 mb-6">Dodaj Zarobki</h2>
-            <form @submit.prevent="addEarning" class="mb-8">
+            <form @submit.prevent="handleAddBudget('earning')" class="mb-8">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div class="">
                   <label for="earningDate" class="block text-gray-700 mb-2">Data</label>
                   <input
                     type="date"
                     id="earningDate"
-                    v-model="newEarning"
+                    v-model="newEarningDate"
                     required
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
                   />
@@ -164,7 +364,7 @@ const savingCategories = [
                   <input
                     type="number"
                     id="earningAmount"
-                    v-model="newEarning"
+                    v-model="newEarningAmount"
                     required
                     min="0.01"
                     step="0.01"
@@ -174,7 +374,7 @@ const savingCategories = [
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div class="">
-                  <label for="expenseCategory" class="block text-gray-700 mb-2">Kategoria</label>
+                  <label for="earningCategory" class="block text-gray-700 mb-2">Kategoria</label>
                   <div class="relative">
                     <select
                       id="earningCategory"
@@ -204,7 +404,7 @@ const savingCategories = [
                   </div>
                 </div>
                 <div class="">
-                  <label for="expenseDescription" class="block text-gray-700 mb-2">Opis</label>
+                  <label for="earningDescription" class="block text-gray-700 mb-2">Opis</label>
                   <input
                     type="text"
                     id="earningDescription"
@@ -240,10 +440,10 @@ const savingCategories = [
                     :key="index"
                     class="border-b border-gray-200"
                   >
-                    <td class="py-3 px-4">data</td>
-                    <td class="py-3 px-4">Kategoria</td>
-                    <td class="py-3 px-4">Opis</td>
-                    <td class="py-3 px-4">Kwota</td>
+                    <td class="py-3 px-4">{{ new Date(item.date).toLocaleDateString() }}</td>
+                    <td class="py-3 px-4">{{ item.category }}</td>
+                    <td class="py-3 px-4">{{ item.description }}</td>
+                    <td class="py-3 px-4">{{ item.amount.toFixed(2) }} zł</td>
                   </tr>
                   <tr>
                     <td colspan="4" class="py-4 text-center text-gray-500">
@@ -257,7 +457,7 @@ const savingCategories = [
           <!-- Expenses Tab -->
           <div v-if="activeTab === 'expenses'" class="animate-fadeIn">
             <h2 class="tex-xl font-semibold text-gray-800 mb-6">Dodaj Wydatki</h2>
-            <form @submit.prevent="addExpense" class="mb-8">
+            <form class="mb-8">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div class="">
                   <label for="expenseDate" class="block text-gray-700 mb-2">Data</label>
@@ -350,10 +550,10 @@ const savingCategories = [
                     :key="index"
                     class="border-b border-gray-200"
                   >
-                    <td class="py-3 px-4">data</td>
-                    <td class="py-3 px-4">Kategoria</td>
-                    <td class="py-3 px-4">Opis</td>
-                    <td class="py-3 px-4">Kwota</td>
+                    <td class="py-3 px-4">{{ new Date(item.date).toLocaleDateString() }}</td>
+                    <td class="py-3 px-4">{{ item.category }}</td>
+                    <td class="py-3 px-4">{{ item.description }}</td>
+                    <td class="py-3 px-4">{{ item.amount.toFixed(2) }} zł</td>
                   </tr>
                   <tr>
                     <td colspan="4" class="py-4 text-center text-gray-500">
@@ -367,7 +567,7 @@ const savingCategories = [
           <!-- Savings Tab -->
           <div v-if="activeTab === 'savings'" class="animate-fadeIn">
             <h2 class="text-xl font-semibold text-gray-800 mb-6">Dodaj Oszczędności</h2>
-            <form @submit.prevent="addSavings" class="mb-8">
+            <form class="mb-8">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div class="">
                   <label for="savingsDate" class="block text-gray-700 mb-2">Data</label>
@@ -428,7 +628,7 @@ const savingCategories = [
                   <input
                     type="text"
                     id="savingDescription"
-                    v-model="newSavingDescription"
+                    v-model="newSavingsDescription"
                     placeholder="Krótki opis"
                     required
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
@@ -460,10 +660,10 @@ const savingCategories = [
                     :key="index"
                     class="border-b border-gray-200"
                   >
-                    <td class="py-3 px-4">data</td>
-                    <td class="py-3 px-4">Kategoria</td>
-                    <td class="py-3 px-4">Opis</td>
-                    <td class="py-3 px-4">Kwota</td>
+                    <td class="py-3 px-4">{{ new Date(item.date).toLocaleDateString() }}</td>
+                    <td class="py-3 px-4">{{ item.category }}</td>
+                    <td class="py-3 px-4">{{ item.description }}</td>
+                    <td class="py-3 px-4">{{ item.amount.toFixed(2) }} zł</td>
                   </tr>
                   <tr>
                     <td colspan="4" class="py-4 text-center text-gray-500">

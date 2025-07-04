@@ -1,10 +1,9 @@
 import type { FastifyInstance } from "fastify";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { db } from "../db";
-import BudgetSchema from "../validation/BudgetSchema";
-import { CreateBudget } from "../types/types";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { z } from "zod";
+import TransactionSchema from "../validation/TransactionSchema";
 
 async function budgetRoutes(server: FastifyInstance) {
   console.log("✅ budgetRoutes registered");
@@ -31,59 +30,113 @@ async function budgetRoutes(server: FastifyInstance) {
     }
   );
 
-  server.post<{ Body: Omit<CreateBudget, "userId"> }>(
-    "/",
+  server.post<{ Body: z.infer<typeof TransactionSchema> }>(
+    "/incomes",
     {
       preHandler: authMiddleware,
-      schema: {
-        body: zodToJsonSchema(BudgetSchema.omit({ userId: true })),
-      },
+      schema: { body: zodToJsonSchema(TransactionSchema) },
     },
     async (request, reply) => {
-      try {
-        const userId = request.user?.id;
-        if (!userId) {
-          return reply.status(401).send({ error: "Unauthorized" });
-        }
-        const validatedData = BudgetSchema.omit({ userId: true }).parse(
-          request.body
-        );
-        const {
-          name,
-          total,
-          incomes = [],
-          expenses = [],
-          savings = [],
-        } = validatedData;
-        const newBudget = await db.budget.create({
-          data: {
-            userId,
-            name,
-            total,
-            incomes: {
-              create: incomes,
-            },
-            expenses: {
-              create: expenses,
-            },
-            savings: {
-              create: savings,
+      const userId = request.user?.id;
+      if (!userId) return reply.status(401).send({ error: "Unauthorized" });
+
+      const income = await db.income.create({
+        data: {
+          ...request.body,
+          budget: {
+            connectOrCreate: {
+              where: {
+                userId_name: {
+                  // dla wersji z @@unique([userId, name])
+                  userId: userId,
+                  name: "Default Budget",
+                },
+              },
+              create: {
+                userId,
+                name: "Default Budget",
+                total: 0,
+              },
             },
           },
-        });
-        return reply.status(201).send(newBudget);
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          return reply.status(400).send({
-            error: "validation error",
-            details: error.errors || "Invalid budget data",
-          });
-        }
-        return reply.status(500).send({ error: "Internal server error" });
-      }
+        },
+      });
+
+      return reply.status(201).send(income);
     }
   );
 
+  server.post<{ Body: z.infer<typeof TransactionSchema> }>(
+    "/expense",
+    {
+      preHandler: authMiddleware,
+      schema: { body: zodToJsonSchema(TransactionSchema) },
+    },
+    async (request, reply) => {
+      const userId = request.user?.id;
+      if (!userId) return reply.status(401).send({ error: "Unauthorized" });
+
+      const expense = await db.expense.create({
+        data: {
+          ...request.body,
+          budget: {
+            connectOrCreate: {
+              where: {
+                userId_name: {
+                  // dla wersji z @@unique([userId, name])
+                  userId: userId,
+                  name: "Default Budget",
+                },
+              },
+              create: {
+                userId,
+                name: "Default Budget",
+                total: 0,
+              },
+            },
+          },
+        },
+      });
+
+      return reply.status(201).send(expense);
+    }
+  );
+
+  server.post<{ Body: z.infer<typeof TransactionSchema> }>(
+    "/saving",
+    {
+      preHandler: authMiddleware,
+      schema: { body: zodToJsonSchema(TransactionSchema) },
+    },
+    async (request, reply) => {
+      const userId = request.user?.id;
+      if (!userId) return reply.status(401).send({ error: "Unauthorized" });
+
+      const saving = await db.income.create({
+        data: {
+          ...request.body,
+          budget: {
+            connectOrCreate: {
+              where: {
+                userId_name: {
+                  // dla wersji z @@unique([userId, name])
+                  userId: userId,
+                  name: "Default Budget",
+                },
+              },
+              create: {
+                userId,
+                name: "Default Budget",
+                total: 0,
+              },
+            },
+          },
+        },
+      });
+
+      return reply.status(201).send(saving);
+    }
+  );
   server.delete(
     "/:id",
     {
