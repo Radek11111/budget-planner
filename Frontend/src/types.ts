@@ -1,33 +1,28 @@
-// export interface Budget {
-//     id: string;
-//     userId: string;
-//     name: string;
-//     total: number;
-//     incomes: {
-//         date: string;
-//         amount: number;
-//         category: string;
-//         description: string;
-//     }[]
-//     expenses: {
-//         date: string;
-//         amount: number;
-//         category: string;
-//         description: string;
-//     }[]
-//     savings: {
-//         date: string;
-//         amount: number;
-//         category: string;
-//         description: string;
-//     }[]
-// }
-
-export interface Budget {
-  id: string
-  date: string
+export interface TransactionBase {
+  date: Date | string
   amount: number
   category: string
   description: string
-  type: 'earning' | 'expense' | 'saving'
+}
+
+export interface Income extends TransactionBase {
+  type?: 'income'
+}
+
+export interface Expense extends TransactionBase {
+  type?: 'expense'
+}
+
+export interface Saving extends TransactionBase {
+  type?: 'saving'
+}
+
+export interface Budget {
+  id?: string
+  userId?: string
+  name: string
+  total: number
+  incomes?: Income[]
+  expenses?: Expense[]
+  savings?: Saving[]
 }

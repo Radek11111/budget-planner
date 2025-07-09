@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createBudgetAPI } from '@/api/budget'
+import { createBudgetAPI } from '@/api/budgetService'
 import type { Budget } from '@/types'
 import { useAuth } from '@clerk/vue'
 import { computed, onMounted, ref } from 'vue'
@@ -9,25 +9,17 @@ const token = ref<string>('')
 const budgetAPI = ref<ReturnType<typeof createBudgetAPI>>()
 
 // Dane formularza
-const newEarningDate = ref('')
-const newEarningAmount = ref<number | null>(null)
-const newEarningCategory = ref('')
-const newEarningDescription = ref('')
-
-const newExpenseDate = ref('')
-const newExpenseAmount = ref<number | null>(null)
-const newExpenseCategory = ref('')
-const newExpenseDescription = ref('')
-
-const newSavingsDate = ref('')
-const newSavingsAmount = ref<number | null>(null)
-const newSavingsCategory = ref('')
-const newSavingsDescription = ref('')
+const newDate = ref('')
+const newAmount = ref<number | null>(null)
+const newCategory = ref('')
+const newDescription = ref('')
+const transactionType = ref<'earning' | 'expense' | 'saving'>('earning')
 
 // Stan aplikacji
 const budgets = ref<Budget[]>([])
 const isLoading = ref(false)
 const error = ref<string | null>(null)
+  const successMessage = ref<string | null>(null)
 
 // Inicjalizacja autentykacji i API
 const initialize = async () => {
@@ -45,9 +37,7 @@ const initialize = async () => {
 
     // Ustaw dzisiejszą datę jako domyślną
     const today = new Date().toISOString().split('T')[0]
-    newEarningDate.value = today
-    newExpenseDate.value = today
-    newSavingsDate.value = today
+    newDate.value = today
   } catch (err) {
     error.value = 'Błąd inicjalizacji: ' + (err instanceof Error ? err.message : 'Nieznany błąd')
     console.error(err)
@@ -70,93 +60,52 @@ const loadBudgets = async () => {
   }
 }
 
+// Walidacja formularza
+const validateForm = (): boolean => {
+  if (!newDate.value) {
+    error.value = 'Data jest wymagana'
+    return false
+  }
+  
+  if (newAmount.value === null || newAmount.value <= 0) {
+    error.value = 'Kwota musi być większa od 0'
+    return false
+  }
+  
+  if (!newCategory.value) {
+    error.value = 'Kategoria jest wymagana'
+    return false
+  }
+  
+  error.value = null
+  return true
+}
+
 // Dodawanie nowego wpisu
-const handleAddBudget = async (type: 'earning' | 'expense' | 'saving') => {
-  if (!budgetAPI.value) {
-    error.value = 'API nie zostało zainicjalizowane'
+const handleAddBudget = async()  => {
+  if(budgetAPI.value === null){
+error.value = 'API nie zostało zainicjalizowane'
     return
   }
-
+  if (!validateForm()) {
+    return
+  }
   try {
-    let payload: Omit<Budget, 'id' | 'userId' | 'createdAt'>
-
-    if (type === 'earning') {
-      if (
-        !newEarningAmount.value ||
-        !newEarningDate.value ||
-        !newEarningCategory.value ||
-        !newEarningDescription.value
-      )
-        throw new Error('Wszystkie pola są wymagane')
-      payload = {
-        date: newEarningDate.value,
-        amount: newEarningAmount.value,
-        category: newEarningCategory.value,
-        description: newEarningDescription.value,
-        type,
-      }
-    } else if (type === 'expense') {
-      if (
-        !newExpenseAmount.value ||
-        !newExpenseDate.value ||
-        !newExpenseCategory.value ||
-        !newExpenseDescription.value
-      )
-        throw new Error('Wszystkie pola są wymagane')
-      payload = {
-        date: newExpenseDate.value,
-        amount: newExpenseAmount.value,
-        category: newExpenseCategory.value,
-        description: newExpenseDescription.value,
-        type,
-      }
-    } else {
-      if (
-        !newExpenseAmount.value ||
-        !newExpenseDate.value ||
-        !newExpenseCategory.value ||
-        !newExpenseDescription.value
-      )
-        throw new Error('Wszystkie pola są wymagane')
-      payload = {
-        date: newSavingsDate.value,
-        amount: newSavingsAmount.value ?? 0,
-        category: newSavingsCategory.value,
-        description: newSavingsDescription.value,
-        type,
-      }
+    const commonFiels = {
+      date: new Date(newDate.value).toISOString(),
+      amount: Number(newAmount.value),
+      category: newCategory.value,
+      description: newDescription.value,
     }
-
-    await budgetAPI.value.addBudget(payload)
-    await loadBudgets()
-    resetForm(type)
-  } catch (err) {
-    error.value =
-      'Błąd podczas dodawania wpisu: ' + (err instanceof Error ? err.message : 'Nieznany błąd')
-    console.error(err)
+    if( transactionType.value === 'earning') {
+      await budgetAPI.value.addIncome(commonFiels)
+    
+    }
+  } catch (error) {
+    
   }
 }
-
-// Resetowanie formularza
-const resetForm = (type: 'earning' | 'expense' | 'saving') => {
-  if (type === 'earning') {
-    newEarningDate.value = ''
-    newEarningAmount.value = null
-    newEarningCategory.value = ''
-    newEarningDescription.value = ''
-  } else if (type === 'expense') {
-    newExpenseDate.value = ''
-    newExpenseAmount.value = null
-    newExpenseCategory.value = ''
-    newExpenseDescription.value = ''
-  } else {
-    newSavingsDate.value = ''
-    newSavingsAmount.value = null
-    newSavingsCategory.value = ''
-    newSavingsDescription.value = ''
-  }
-}
-
+ 
 // Usuwanie wpisu
 const handleDeleteBudget = async (id: string) => {
   if (!budgetAPI.value) {
@@ -354,7 +303,7 @@ const savingCategories = [
                   <input
                     type="date"
                     id="earningDate"
-                    v-model="newEarningDate"
+                    v-model="newDate"
                     required
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
                   />
@@ -364,7 +313,7 @@ const savingCategories = [
                   <input
                     type="number"
                     id="earningAmount"
-                    v-model="newEarningAmount"
+                    v-model="newAmount"
                     required
                     min="0.01"
                     step="0.01"
@@ -378,7 +327,7 @@ const savingCategories = [
                   <div class="relative">
                     <select
                       id="earningCategory"
-                      v-model="newEarningCategory"
+                      v-model="newCategory"
                       required
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
                     >
@@ -408,7 +357,7 @@ const savingCategories = [
                   <input
                     type="text"
                     id="earningDescription"
-                    v-model="newEarningDescription"
+                    v-model="newDescription"
                     placeholder="Krótki opis"
                     required
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
@@ -440,10 +389,23 @@ const savingCategories = [
                     :key="index"
                     class="border-b border-gray-200"
                   >
-                    <td class="py-3 px-4">{{ new Date(item.date).toLocaleDateString() }}</td>
-                    <td class="py-3 px-4">{{ item.category }}</td>
-                    <td class="py-3 px-4">{{ item.description }}</td>
-                    <td class="py-3 px-4">{{ item.amount.toFixed(2) }} zł</td>
+                    <td class="py-3 px-4">
+                      {{
+                        item.incomes && item.incomes[0]
+                          ? new Date(item.incomes[0].date).toLocaleDateString()
+                          : ''
+                      }}
+                    </td>
+                    <td class="py-3 px-4">
+                      {{ item.incomes && item.incomes[0] ? item.incomes[0].category : '' }}
+                    </td>
+                    <td class="py-3 px-4">
+                      {{ item.incomes && item.incomes[0] ? item.incomes[0].description : '' }}
+                    </td>
+                    <td class="py-3 px-4">
+                      {{ item.incomes && item.incomes[0] ? item.incomes[0].amount.toFixed(2) : '' }}
+                      zł
+                    </td>
                   </tr>
                   <tr>
                     <td colspan="4" class="py-4 text-center text-gray-500">
@@ -464,7 +426,7 @@ const savingCategories = [
                   <input
                     type="date"
                     id="expenseDate"
-                    v-model="newExpenseDate"
+                    v-model="newDate"
                     required
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
                   />
@@ -474,7 +436,7 @@ const savingCategories = [
                   <input
                     type="number"
                     id="expenseAmount"
-                    v-model="newExpenseAmount"
+                    v-model="newAmount"
                     required
                     min="0.01"
                     step="0.01"
@@ -488,7 +450,7 @@ const savingCategories = [
                   <div class="relative">
                     <select
                       id="expenseCategory"
-                      v-model="newExpenseCategory"
+                      v-model="newCategory"
                       required
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
                     >
@@ -518,7 +480,7 @@ const savingCategories = [
                   <input
                     type="text"
                     id="expenseDescription"
-                    v-model="newExpenseDescription"
+                    v-model="newDescription"
                     placeholder="Krótki opis"
                     required
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
@@ -546,14 +508,27 @@ const savingCategories = [
                 </thead>
                 <tbody>
                   <tr
-                    v-for="(item, index) in expenses"
+                    v-for="(item, index) in earnings"
                     :key="index"
                     class="border-b border-gray-200"
                   >
-                    <td class="py-3 px-4">{{ new Date(item.date).toLocaleDateString() }}</td>
-                    <td class="py-3 px-4">{{ item.category }}</td>
-                    <td class="py-3 px-4">{{ item.description }}</td>
-                    <td class="py-3 px-4">{{ item.amount.toFixed(2) }} zł</td>
+                    <td class="py-3 px-4">
+                      {{
+                        item.incomes && item.incomes[0]
+                          ? new Date(item.incomes[0].date).toLocaleDateString()
+                          : ''
+                      }}
+                    </td>
+                    <td class="py-3 px-4">
+                      {{ item.incomes && item.incomes[0] ? item.incomes[0].category : '' }}
+                    </td>
+                    <td class="py-3 px-4">
+                      {{ item.incomes && item.incomes[0] ? item.incomes[0].description : '' }}
+                    </td>
+                    <td class="py-3 px-4">
+                      {{ item.incomes && item.incomes[0] ? item.incomes[0].amount.toFixed(2) : '' }}
+                      zł
+                    </td>
                   </tr>
                   <tr>
                     <td colspan="4" class="py-4 text-center text-gray-500">
@@ -574,7 +549,7 @@ const savingCategories = [
                   <input
                     type="date"
                     id="savingsDate"
-                    v-model="newSavingsDate"
+                    v-model="newDate"
                     required
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
                   />
@@ -584,7 +559,7 @@ const savingCategories = [
                   <input
                     type="number"
                     id="savingsAmount"
-                    v-model="newSavingsAmount"
+                    v-model="newAmount"
                     required
                     min="0.01"
                     step="0.01"
@@ -598,7 +573,7 @@ const savingCategories = [
                   <div class="relative">
                     <select
                       id="savingsCategory"
-                      v-model="newSavingsCategory"
+                      v-model="newCategory"
                       required
                       class="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
                     >
@@ -628,7 +603,7 @@ const savingCategories = [
                   <input
                     type="text"
                     id="savingDescription"
-                    v-model="newSavingsDescription"
+                    v-model="newDescription"
                     placeholder="Krótki opis"
                     required
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
@@ -656,14 +631,27 @@ const savingCategories = [
                 </thead>
                 <tbody>
                   <tr
-                    v-for="(item, index) in savings"
+                    v-for="(item, index) in earnings"
                     :key="index"
                     class="border-b border-gray-200"
                   >
-                    <td class="py-3 px-4">{{ new Date(item.date).toLocaleDateString() }}</td>
-                    <td class="py-3 px-4">{{ item.category }}</td>
-                    <td class="py-3 px-4">{{ item.description }}</td>
-                    <td class="py-3 px-4">{{ item.amount.toFixed(2) }} zł</td>
+                    <td class="py-3 px-4">
+                      {{
+                        item.incomes && item.incomes[0]
+                          ? new Date(item.incomes[0].date).toLocaleDateString()
+                          : ''
+                      }}
+                    </td>
+                    <td class="py-3 px-4">
+                      {{ item.incomes && item.incomes[0] ? item.incomes[0].category : '' }}
+                    </td>
+                    <td class="py-3 px-4">
+                      {{ item.incomes && item.incomes[0] ? item.incomes[0].description : '' }}
+                    </td>
+                    <td class="py-3 px-4">
+                      {{ item.incomes && item.incomes[0] ? item.incomes[0].amount.toFixed(2) : '' }}
+                      zł
+                    </td>
                   </tr>
                   <tr>
                     <td colspan="4" class="py-4 text-center text-gray-500">

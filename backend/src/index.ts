@@ -13,9 +13,14 @@ declare module "fastify" {
 
 dotenv.config();
 
-const server = Fastify();
+const server = Fastify({
+  logger: true,
+});
 
-server.register(cors);
+server.register(cors, {
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+});
 server.register(budgetRoutes, { prefix: "/budget" });
 
 server.get("/", async () => {

@@ -2,11 +2,11 @@ import { verifyToken, createClerkClient, User } from "@clerk/backend";
 import type { FastifyRequest, FastifyReply } from "fastify";
 
 const clerkClient = createClerkClient({
-  secretKey: process.env.CLERK_SECRET_KEY!,
+  secretKey: process.env.CLERK_SECRET_KEY,
 });
 
 export async function authMiddleware(
-  request: FastifyRequest & { user?: User },
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
@@ -15,7 +15,7 @@ export async function authMiddleware(
       return reply.status(401).send({ error: "Missing authorization header" });
     }
 
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader.split(" ")[1];
     const session = await verifyToken(token, {
       secretKey: process.env.CLERK_SECRET_KEY,
     });
@@ -36,5 +36,3 @@ export async function authMiddleware(
     return reply.status(401).send({ error: "Unauthorized" });
   }
 }
-
-
