@@ -17,12 +17,3 @@ export interface Saving extends TransactionBase {
   type?: 'saving'
 }
 
-export interface Budget {
-  id?: string
-  userId?: string
-  name: string
-  total: number
-  incomes?: Income[]
-  expenses?: Expense[]
-  savings?: Saving[]
-}

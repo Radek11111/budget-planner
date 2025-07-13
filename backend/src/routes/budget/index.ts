@@ -6,9 +6,9 @@ import { deleteBudget } from "./deleteBudget";
 import { addIncome } from "./addIncome";
 
 export default async function budgetRoutes(server: FastifyInstance) {
-  await getBudgetsRoute(server);
-  await addIncome(server);
-  await addExpense(server);
-  await addSaving(server);
-  await deleteBudget(server);
+  server.register(addIncome);
+  server.register(addExpense);
+  server.register(addSaving);
+  server.register(deleteBudget);
+  server.register(getBudgetsRoute);
 }

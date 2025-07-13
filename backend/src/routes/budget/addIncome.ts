@@ -7,7 +7,7 @@ import zodToJsonSchema from "zod-to-json-schema";
 
 export async function addIncome(server: FastifyInstance) {
   server.post<{ Body: z.infer<typeof TransactionSchema> }>(
-    "/incomes",
+    "/income",
     {
       preHandler: authMiddleware,
       schema: { body: zodToJsonSchema(TransactionSchema) },

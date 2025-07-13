@@ -18,7 +18,8 @@ const server = Fastify({
 });
 
 server.register(cors, {
-  origin: process.env.FRONTEND_URL,
+  origin: process.env.VITE_FRONTEND_URL,
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 });
 server.register(budgetRoutes, { prefix: "/budget" });
