@@ -107,9 +107,9 @@
 
 <script lang="ts" setup>
 import type { Income } from '@/types'
-import { ref } from 'vue'
-import { useBudgetService } from '../../api/budgetService'
+import { onMounted, ref } from 'vue'
 import { earningCategories } from '@/constants/categories'
+import { useIncomes } from '@/api/useIncomes'
 const emit = defineEmits<{
   (e: 'added', value: Income): void
 }>()
@@ -118,8 +118,16 @@ const date = ref('')
 const amount = ref<number | null>(null)
 const description = ref('')
 const category = ref('')
-const { addIncome } = useBudgetService()
+const { addIncome, getIncomes } = useIncomes()
 const localEarnings = ref<Income[]>([])
+
+onMounted(async () => {
+  try {
+    localEarnings.value = await getIncomes()
+  } catch (e) {
+    console.error('Błąd przy pobieraniu zarobków', e)
+  }
+})
 
 const handleSubmit = async () => {
   if (!date.value || amount.value === null || !category.value || !description.value) return
@@ -133,7 +141,8 @@ const handleSubmit = async () => {
 
   try {
     await addIncome(newIncome)
-    localEarnings.value.unshift(newIncome) 
+    const updated = await getIncomes()
+    localEarnings.value = updated.data
     emit('added', newIncome)
 
     // Reset

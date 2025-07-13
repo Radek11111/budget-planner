@@ -18,7 +18,7 @@ export async function getBudgets(server: FastifyInstance) {
         const budgets = await db.budget.findMany({
           where: { userId },
         });
-        return budgets;
+        return reply.status(200).send(budgets);
       } catch (error) {
         return reply.status(400).send({ error: "Invalid query parameters" });
       }

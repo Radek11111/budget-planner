@@ -1,6 +1,6 @@
-import { db } from "db";
+import { db } from "../../../db";
 import { FastifyInstance } from "fastify";
-import { authMiddleware } from "middleware/authMiddleware";
+import { authMiddleware } from "../../../middleware/authMiddleware";
 
 export async function deleteSaving(server: FastifyInstance) {
   server.delete(

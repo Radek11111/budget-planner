@@ -1,6 +1,6 @@
-import { db } from "db";
+import { db } from "../../../db";
 import { FastifyInstance } from "fastify";
-import { authMiddleware } from "middleware/authMiddleware";
+import { authMiddleware } from "../../../middleware/authMiddleware";
 
 export async function getIncome(server: FastifyInstance) {
   server.get(
@@ -19,6 +19,7 @@ export async function getIncome(server: FastifyInstance) {
             budget: true,
           },
         });
+        return reply.status(200).send(incomes);
       } catch (error) {
         console.error(error);
         return reply.status(500).send({ error: "Internal Server Error" });
