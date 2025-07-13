@@ -2,7 +2,7 @@ import { db } from "../../db";
 import { FastifyInstance } from "fastify";
 import { authMiddleware } from "../../middleware/authMiddleware";
 
-export async function getBudgetsRoute(server: FastifyInstance) {
+export async function getBudgets(server: FastifyInstance) {
   server.get(
     "/",
     {
