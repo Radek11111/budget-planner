@@ -12,8 +12,17 @@ import {
   LaAngleDoubleDownSolid,
   PxPlus,
   LaSpinnerSolid,
+  FaTrashAlt,
 } from 'oh-vue-icons/icons'
-addIcons(IoWalletOutline, FaShoppingCart, FaPiggyBank, LaAngleDoubleDownSolid, PxPlus, LaSpinnerSolid)
+addIcons(
+  IoWalletOutline,
+  FaShoppingCart,
+  FaPiggyBank,
+  LaAngleDoubleDownSolid,
+  PxPlus,
+  LaSpinnerSolid,
+  FaTrashAlt,
+)
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 

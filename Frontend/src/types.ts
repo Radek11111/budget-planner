@@ -1,4 +1,5 @@
 export interface TransactionBase {
+  id: string
   date: Date | string
   amount: number
   category: string
@@ -16,4 +17,3 @@ export interface Expense extends TransactionBase {
 export interface Saving extends TransactionBase {
   type?: 'saving'
 }
-
