@@ -78,6 +78,7 @@
           <th class="py-3 px-4 text-left">Kategoria</th>
           <th class="py-3 px-4 text-left">Opis</th>
           <th class="py-3 px-4 text-left">Kwota</th>
+          <th class="py-3 px-4 text-left">Akcja</th>
         </tr>
       </thead>
       <tbody>
@@ -96,6 +97,15 @@
             {{ income.amount.toFixed(2) }}
             zł
           </td>
+          <td class="py-3 px-4">
+            <v-icon
+              name="fa-trash-alt"
+              scale="1.2"
+              fill="red"
+              class="cursor-pointer hover:scale-125 transition-transform"
+              @click="handleDelete(income.id)"
+            />
+          </td>
         </tr>
         <tr v-if="store.incomes?.length === 0">
           <td colspan="4" class="py-4 text-center text-gray-500">
@@ -109,9 +119,9 @@
 
 <script lang="ts" setup>
 import type { Income } from '@/types'
-import { onMounted, ref, watchEffect } from 'vue'
+import { onMounted, ref } from 'vue'
 import { earningCategories } from '@/constants/categories'
-
+import Swal from 'sweetalert2'
 import { useIncomeStore } from '@/stores/incomeStore'
 
 const date = ref('')
@@ -121,7 +131,7 @@ const category = ref('')
 
 const store = useIncomeStore()
 
-onMounted(async () => {
+onMounted(() => {
   store.fetchIncomes()
 })
 
@@ -147,6 +157,38 @@ const handleSubmit = async () => {
   } catch (e) {
     console.error('Błąd przy dodawaniu przychodu', e)
     alert('Wystąpił błąd podczas dodawania przychodu. Spróbuj ponownie później.')
+  }
+}
+
+const handleDelete = async (id: string) => {
+  const result = await Swal.fire({
+    title: 'Czy na pewno chcesz usunąć ten przychód?',
+    text: 'Ta operacja jest nieodwracalna.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e3342f',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Tak, usuń',
+    cancelButtonText: 'Anuluj',
+  })
+  if (result.isConfirmed) {
+  }
+  try {
+    await store.removeIncome(id)
+    Swal.fire({
+      title: 'Usunięto przychód',
+      text: 'Przychód został pomyślnie usunięty.',
+      icon: 'success',
+      timer: 1500,
+      showConfirmButton: false,
+    })
+  } catch (e) {
+    Swal.fire(
+      'Błąd',
+      'Wystąpił błąd podczas usuwania przychodu. Spróbuj ponownie później.',
+      'error',
+    )
+    console.error('Błąd przy usuwaniu przychodu', e)
   }
 }
 
