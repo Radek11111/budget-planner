@@ -151,7 +151,7 @@ const handleSubmit = async () => {
 
     // Reset
     date.value = ''
-    amount.value = null
+    amount.value = 0
     category.value = ''
     description.value = ''
   } catch (e) {

@@ -17,7 +17,7 @@ export async function addSaving(server: FastifyInstance) {
       const userId = request.user?.id;
       if (!userId) return reply.status(401).send({ error: "Unauthorized" });
 
-      const saving = await db.income.create({
+      const saving = await db.saving.create({
         data: {
           ...request.body,
           budget: {

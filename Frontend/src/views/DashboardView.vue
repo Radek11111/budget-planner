@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import IncomeForm from '@/components/forms/IncomeForm.vue'
 import ExpenseForm from '@/components/forms/ExpenseForm.vue'
+import SavingForm from '@/components/forms/SavingForm.vue'
 
 const isLoading = ref(false)
 
@@ -140,7 +141,7 @@ const savingCategories = [
       <!-- Tabs section -->
 
       <div class="bg-white rounded-lg shadow-md">
-        <div class="flex border-b">
+        <div class="flex border-b border-gray-100">
           <button
             v-for="tab in tabs"
             :key="tab.id"
@@ -159,132 +160,11 @@ const savingCategories = [
         <!-- Tab Content -->
         <div class="p-6">
           <!-- Earnings Tab -->
-          <IncomeForm  v-if="activeTab === 'earnings'" />
+          <IncomeForm  v-if="activeTab === 'earnings'" class="animate-fadeIn"/>
           <!-- Expenses Tab -->
-          <ExpenseForm v-if="activeTab === 'expenses'" />
+          <ExpenseForm v-if="activeTab === 'expenses'"  class="animate-fadeIn"/>
           <!-- Savings Tab -->
-          <div v-if="activeTab === 'savings'" class="animate-fadeIn">
-            <h2 class="text-xl font-semibold text-gray-800 mb-6">Dodaj Oszczędności</h2>
-            <form class="mb-8">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div class="">
-                  <label for="savingsDate" class="block text-gray-700 mb-2">Data</label>
-                  <input
-                    type="date"
-                    id="savingsDate"
-                    v-model="newDate"
-                    required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
-                  />
-                </div>
-                <div class="">
-                  <label for="expenseAmount" class="block text-gray-700 mb-2">Kwota (zł)</label>
-                  <input
-                    type="number"
-                    id="savingsAmount"
-                    v-model="newAmount"
-                    required
-                    min="0.01"
-                    step="0.01"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
-                  />
-                </div>
-              </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div class="">
-                  <label for="savingsCategory" class="block text-gray-700 mb-2">Kategoria</label>
-                  <div class="relative">
-                    <select
-                      id="savingsCategory"
-                      v-model="newCategory"
-                      required
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
-                    >
-                      <option value="" disabled>Wybierz kategorie</option>
-                      <option
-                        v-for="category in savingCategories"
-                        :key="category"
-                        :value="category"
-                      >
-                        {{ category }}
-                      </option>
-                    </select>
-                    <div
-                      class="pointer-events-none absolute inset-y-0 right-0 flex items center px-2 text-gray-700 items-center"
-                    >
-                      <v-icon
-                        name="la-angle-double-down-solid"
-                        scale="1"
-                        fill="#FFB347"
-                        animation="float"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="">
-                  <label for="savingDescription" class="block text-gray-700 mb-2">Opis</label>
-                  <input
-                    type="text"
-                    id="savingDescription"
-                    v-model="newDescription"
-                    placeholder="Krótki opis"
-                    required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
-                  />
-                </div>
-              </div>
-              <button
-                type="submit"
-                class="bg-[#FFB347] text-white py-2 px-6 rounded-lg hover:bg-[#FFA533] transition-colors cursor-pointer whitespace-nowrap !rounded-button"
-              >
-                <v-icon name="px-plus" scale="1.5" animation="pulse" hover />
-              </button>
-            </form>
-            <!-- Recent Savings -->
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Ostatnie Oszczędności</h3>
-            <div class="overflow-x-auto">
-              <table class="min-w-full bg-white">
-                <thead>
-                  <tr class="bg-gray-100 text-gray-700">
-                    <th class="py-3 px-4 text-left">Data</th>
-                    <th class="py-3 px-4 text-left">Kategoria</th>
-                    <th class="py-3 px-4 text-left">Opis</th>
-                    <th class="py-3 px-4 text-left">Kwota</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="(item, index) in savings"
-                    :key="index"
-                    class="border-b border-gray-200"
-                  >
-                    <td class="py-3 px-4">
-                      {{
-                        item.incomes && item.incomes[0]
-                          ? new Date(item.incomes[0].date).toLocaleDateString()
-                          : ''
-                      }}
-                    </td>
-                    <td class="py-3 px-4">
-                      {{ item.incomes && item.incomes[0] ? item.incomes[0].category : '' }}
-                    </td>
-                    <td class="py-3 px-4">
-                      {{ item.incomes && item.incomes[0] ? item.incomes[0].description : '' }}
-                    </td>
-                    <td class="py-3 px-4">
-                      {{ item.incomes && item.incomes[0] ? item.incomes[0].amount.toFixed(2) : '' }}
-                      zł
-                    </td>
-                  </tr>
-                  <tr>
-                    <td colspan="4" class="py-4 text-center text-gray-500">
-                      Nie odnotowano jeszcze żadnych oszczędności.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <SavingForm v-if="activeTab === 'savings'" class="animate-fadeIn"/>
         </div>
       </div>
     </div>
