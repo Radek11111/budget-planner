@@ -1,15 +1,57 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import IncomeForm from '@/components/forms/IncomeForm.vue'
 import ExpenseForm from '@/components/forms/ExpenseForm.vue'
 import SavingForm from '@/components/forms/SavingForm.vue'
+import { useIncomeStore } from '@/stores/incomeStore'
+import { useExpenseStore } from '@/stores/expenseStore'
+import { useSavingStore } from '@/stores/savingStore'
+import Swal from 'sweetalert2'
+import { useTotalAmount } from '@/composabes/useTotalAmount'
+import { useSpendingWarning } from '@/components/useSprendingWarning'
+import FinancePieChart from '@/components/FinancePieChart.vue'
 
 const isLoading = ref(false)
+const incomeStore = useIncomeStore()
+const expenseStore = useExpenseStore()
+const savingStore = useSavingStore()
 
-const newDate = ref('')
-const newAmount = ref<number | null>(null)
-const newCategory = ref('')
-const newDescription = ref('')
+// Fetch data on mount
+onMounted(async () => {
+  try {
+    isLoading.value = true
+    await Promise.all([
+      incomeStore.fetchIncomes(),
+      expenseStore.fetchExpenses(),
+      savingStore.fetchSavings(),
+    ])
+  } catch (error) {
+    console.error('Error fetching data:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Błąd',
+      text: 'Nie udało się pobrać danych. Spróbuj ponownie później.',
+    })
+  } finally {
+    isLoading.value = false
+  }
+})
+
+// Total amounts
+const totalIncome = useTotalAmount(computed(() => incomeStore.incomes))
+const totalExpense = useTotalAmount(computed(() => expenseStore.expenses))
+const totalSaving = useTotalAmount(computed(() => savingStore.savings))
+
+// Function percentage
+const expensesPercentage = computed(() =>
+  totalIncome.value > 0 ? (totalExpense.value / totalIncome.value) * 100 : 0,
+)
+
+const savingsPercentage = computed(() =>
+  totalIncome.value > 0 ? (totalSaving.value / totalIncome.value) * 100 : 0,
+)
+// Watch for changes in expenses percentage to trigger warning
+useSpendingWarning(expensesPercentage)
 
 // UI
 const activeTab = ref('earnings')
@@ -18,34 +60,13 @@ const tabs = [
   { id: 'expenses', name: 'Wydatki', icon: 'fa-shopping-cart' },
   { id: 'savings', name: 'Oszczędności', icon: 'fa-piggy-bank' },
 ]
-
-const earningCategories = ['Wynagrodzenie', 'Własna działaność', 'Inwestycje', 'Prezenty', 'Inne']
-const expenseCategories = [
-  'Mieszkanie',
-  'Rachunki',
-  'Kredyty',
-  'Żywność',
-  'Transport',
-  'Media',
-  'Rozrywka',
-  'Opieka zdrowotna',
-  'Zakupy',
-  'Inne',
-]
-const savingCategories = [
-  'Fundusz awaryjny',
-  'Emerytura',
-  'Wakacje',
-  'Edukacja',
-  'Zakup domu',
-  'Inne',
-]
 </script>
 
-<template>
+<template v-if="!isLoading">
   <div class="min-h-screen bg-gray-50">
     <div v-if="isLoading" class="flex justify-center items-center py-8">
       <v-icon name="la-spinner-solid" scale="3" fill="orange" animation="spin" />
+      <p class="text-gray-600">Ładowanie danych...</p>
     </div>
     <div v-else class="container mx-auto px-4 py-8 max-w-7xl">
       <!-- Header -->
@@ -69,8 +90,8 @@ const savingCategories = [
             />
             <h2 class="text-xl font-semibold text-gray-800">Zarobki</h2>
           </div>
-          <p class="text-3xl font-bold text-gray-800 mb-2">Zarobki w zł</p>
-          <p class="text-gray-600">tu funcja wyliczajaca</p>
+          <p class="text-3xl font-bold text-gray-800 mb-2">{{ totalIncome.toFixed(2) }}</p>
+          <p class="text-gray-600">100% z zarobków</p>
         </div>
         <!-- Expenses Card -->
         <div
@@ -86,8 +107,13 @@ const savingCategories = [
             />
             <h2 class="text-xl font-semibold text-gray-800">Wydatki</h2>
           </div>
-          <p class="text-3xl font-bold text-gray-800 mb-2">Zarobki w zł</p>
-          <p class="text-gray-600">tu funcja wyliczajaca</p>
+          <p class="text-3xl font-bold text-gray-800 mb-2">{{ totalExpense.toFixed(2) }}</p>
+          <p
+            class="text-gray-600"
+            :class="expensesPercentage > 80 ? 'text-red-600' : 'text-gray-600'"
+          >
+            {{ expensesPercentage.toFixed(2) }}% z zarobków
+          </p>
         </div>
         <!-- Savings Card -->
         <div
@@ -97,15 +123,26 @@ const savingCategories = [
             <v-icon name="fa-piggy-bank" scale="1.5" fill="orange" animation="pulse" class="mr-3" />
             <h2 class="text-xl font-semibold text-gray-800">Oszczędności</h2>
           </div>
-          <p class="text-3xl font-bold text-gray-800 mb-2">Zarobki w zł</p>
-          <p class="text-gray-600">tu funcja wyliczajaca</p>
+          <p class="text-3xl font-bold text-gray-800 mb-2">{{ totalSaving.toFixed(2) }}</p>
+          <p
+            class="text-gray-600"
+            :class="savingsPercentage > 10 ? 'text-yellow-600' : 'text-gray-600'"
+          >
+            {{ savingsPercentage.toFixed(2) }}% z zarobków
+          </p>
         </div>
       </div>
       <!-- Charts Section -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-8">
         <h2 class="text-xl font-semibold text-gray-800 mb-4">Wykres Finansów</h2>
         <div class="flex flex-col md:flex-row gap-6">
-          <div class="w-full md:w-2/3" style="height: 400px">wykres</div>
+          <div class="w-full md:w-2/3" style="height: 400px">
+            <FinancePieChart
+              :incomes="totalIncome"
+              :expenses="totalExpense"
+              :savings="totalSaving"
+            />
+          </div>
           <div class="w-full md:w-1/3 mt-6 md:mt-0">
             <div class="mb-4">
               <h3 class="text-lg font-medium text-gray-800 mb-2">Podsumowanie</h3>
@@ -113,24 +150,24 @@ const savingCategories = [
             </div>
             <div class="space-y-4">
               <div class="flex items-center">
-                <div class="bg-orange-light w-4 h-4 rounded-full mr-3"></div>
+                <div class="bg-orange-medium w-4 h-4 rounded-full mr-3"></div>
                 <div class="">
                   <p class="font-medium">Zarobki</p>
-                  <p class="text-gray-600">tu funcja wyliczajaca</p>
+                  <p class="text-gray-600">{{ totalIncome.toFixed(2) }} zł</p>
                 </div>
               </div>
               <div class="flex items-center">
                 <div class="bg-orange-dark w-4 h-4 rounded-full mr-3"></div>
                 <div class="">
                   <p class="font-medium">Wydatki</p>
-                  <p class="text-gray-600">tu funcja wyliczajaca</p>
+                  <p class="text-gray-600">{{ totalExpense.toFixed(2) }} zł</p>
                 </div>
               </div>
               <div class="flex items-center">
                 <div class="bg-orange-light-medium w-4 h-4 rounded-full mr-3"></div>
                 <div class="">
                   <p class="font-medium">Oszczędności</p>
-                  <p class="text-gray-600">tu funcja wyliczajaca</p>
+                  <p class="text-gray-600">{{ totalSaving.toFixed(2) }} zł</p>
                 </div>
               </div>
             </div>
@@ -158,13 +195,14 @@ const savingCategories = [
           </button>
         </div>
         <!-- Tab Content -->
-        <div class="p-6">
+
+        <div :key="activeTab" class="p-6 animate-fadeIn" v-bind="$attrs">
           <!-- Earnings Tab -->
-          <IncomeForm  v-if="activeTab === 'earnings'" class="animate-fadeIn"/>
+          <IncomeForm v-if="activeTab === 'earnings'" />
           <!-- Expenses Tab -->
-          <ExpenseForm v-if="activeTab === 'expenses'"  class="animate-fadeIn"/>
+          <ExpenseForm v-if="activeTab === 'expenses'" />
           <!-- Savings Tab -->
-          <SavingForm v-if="activeTab === 'savings'" class="animate-fadeIn"/>
+          <SavingForm v-if="activeTab === 'savings'" />
         </div>
       </div>
     </div>
