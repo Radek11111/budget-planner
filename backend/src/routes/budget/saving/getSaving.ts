@@ -12,8 +12,35 @@ export async function getSaving(server: FastifyInstance) {
           return reply.status(401).send({ error: "Unauthorized" });
         }
         const userId = request.user.id;
+        const { year, month } = request.query as {
+          year?: string;
+          month?: string;
+        };
+
+        let dataFilter = {};
+
+        if (year && month) {
+          const start = new Date(Number(year), Number(month) - 1, 1);
+          const end = new Date(Number(year), Number(month), 1);
+          dataFilter = {
+            date: {
+              gte: start,
+              lt: end,
+            },
+          };
+        } else if (year) {
+          const start = new Date(Number(year), 0, 1);
+          const end = new Date(Number(year) + 1, 0, 1);
+          dataFilter = {
+            date: {
+              gte: start,
+              lt: end,
+            },
+          };
+        }
         const savings = await db.saving.findMany({
-          where: { budget: { userId } },
+          where: { budget: { userId }, ...dataFilter },
+
           orderBy: { date: "desc" },
           include: {
             budget: true,

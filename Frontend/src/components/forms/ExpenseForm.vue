@@ -68,32 +68,32 @@
   </form>
   <!-- Recent Expenses -->
   <h3 class="text-lg font-semibold text-gray-800 mb-4">Ostatnie wydatki</h3>
-  <div class="overflow-x-auto">
-    <div v-if="store.isLoading">Ładowanie...</div>
-    <div v-else-if="store.error">{{ store.error }}</div>
-    <table class="min-w-full bg-white">
+  <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300">
+    <div v-if="store.isLoading" class="p-4">Ładowanie...</div>
+    <div v-else-if="store.error" class="p-4 text-red-500">{{ store.error }}</div>
+    <table class="w-full min-w-[700px] bg-white text-sm">
       <thead>
         <tr class="bg-gray-100 text-gray-700">
-          <th class="py-3 px-4 text-left">Data</th>
-          <th class="py-3 px-4 text-left">Kategoria</th>
+          <th class="py-3 px-4 text-left whitespace-nowrap">Data</th>
+          <th class="py-3 px-4 text-left whitespace-nowrap">Kategoria</th>
           <th class="py-3 px-4 text-left">Opis</th>
-          <th class="py-3 px-4 text-left">Kwota</th>
-          <th class="py-3 px-4 text-left">Akcja</th>
+          <th class="py-3 px-4 text-left whitespace-nowrap">Kwota</th>
+          <th class="py-3 px-4 text-left whitespace-nowrap">Akcja</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="expense in store.expenses" :key="expense.id" class="border-b border-gray-200">
-          <td class="py-3 px-4">
+          <td class="py-3 px-4 whitespace-nowrap">
             {{ formatDate(expense.date) }}
           </td>
-          <td class="py-3 px-4">
+          <td class="py-3 px-4 whitespace-nowrap">
             {{ expense.category }}
           </td>
           <td class="py-3 px-4">
             {{ expense.description }}
           </td>
-          <td class="py-3 px-4">{{ expense.amount.toFixed(2) }} zł</td>
-          <td class="py-3 px-4">
+          <td class="py-3 px-4 whitespace-nowrap">{{ expense.amount.toFixed(2) }} zł</td>
+          <td class="py-3 px-4 whitespace-nowrap">
             <v-icon
               name="fa-trash-alt"
               scale="1.2"
@@ -174,11 +174,7 @@ const handleDelete = async (id: string) => {
       showConfirmButton: false,
     })
   } catch (e) {
-    Swal.fire(
-      'Błąd',
-      'Wystąpił błąd podczas usuwania wydatku. Spróbuj ponownie później.',
-      'error',
-    )
+    Swal.fire('Błąd', 'Wystąpił błąd podczas usuwania wydatku. Spróbuj ponownie później.', 'error')
     console.error('Błąd przy usuwaniu wydatku', e)
   }
 }

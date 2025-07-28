@@ -1,5 +1,6 @@
 import { useExpenses } from '@/api/useExpenses'
 import type { Expense } from '@/types'
+import dayjs from 'dayjs'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -13,7 +14,10 @@ export const useExpenseStore = defineStore('expense', () => {
     isLoading.value = true
     error.value = null
     try {
-      const response = await getExpenses()
+       const now = dayjs()
+            const year = now.year()
+            const month = now.month() + 1
+      const response = await getExpenses({year,month})
       expenses.value = response.data
     } catch (err) {
       error.value = 'Failed to fetch expenses'

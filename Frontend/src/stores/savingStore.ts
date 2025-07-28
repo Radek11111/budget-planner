@@ -1,5 +1,6 @@
 import { useSavings } from '@/api/useSavings'
 import type { Saving } from '@/types'
+import dayjs from 'dayjs'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -13,7 +14,10 @@ export const useSavingStore = defineStore('saving', () => {
     isLoading.value = true
     error.value = null
     try {
-      const response = await getSavings()
+      const now = dayjs()
+      const year = now.year()
+      const month = now.month() + 1
+      const response = await getSavings({ year, month })
       savings.value = response.data
     } catch (err) {
       error.value = 'Failed to fetch savings'

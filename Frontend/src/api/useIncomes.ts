@@ -5,8 +5,8 @@ import type { AxiosResponse } from 'axios'
 export const useIncomes = () => {
   const api = createApiClerkClient()
   return {
-    getIncomes: async (): Promise<AxiosResponse<Income[]>> => {
-      const res = await api.get('/budget/income')
+    getIncomes: async (params?: { year?: number; month?: number }): Promise<AxiosResponse<Income[]>> => {
+      const res = await api.get('/budget/income', { params })
 
       return res
     },

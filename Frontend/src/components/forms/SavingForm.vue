@@ -68,33 +68,35 @@
   </form>
   <!-- Recent Savings -->
   <h3 class="text-lg font-semibold text-gray-800 mb-4">Ostatnie Oszczędności</h3>
-  <div class="overflow-x-auto">
-    <table class="min-w-full bg-white">
+  <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300">
+    <div v-if="store.isLoading" class="p-4">Ładowanie...</div>
+    <div v-else-if="store.error" class="p-4 text-red-500">{{ store.error }}</div>
+    <table class="w-full min-w-[700px] bg-white text-sm">
       <thead>
-        <tr class="bg-gray-100 text-gray-700">
-          <th class="py-3 px-4 text-left">Data</th>
-          <th class="py-3 px-4 text-left">Kategoria</th>
+      <tr class="bg-gray-100 text-gray-700">
+          <th class="py-3 px-4 text-left whitespace-nowrap">Data</th>
+          <th class="py-3 px-4 text-left whitespace-nowrap">Kategoria</th>
           <th class="py-3 px-4 text-left">Opis</th>
-          <th class="py-3 px-4 text-left">Kwota</th>
-          <th class="py-3 px-4 text-left">Akcje</th>
+          <th class="py-3 px-4 text-left whitespace-nowrap">Kwota</th>
+          <th class="py-3 px-4 text-left whitespace-nowrap">Akcja</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="saving in store.savings" :key="saving.id" class="border-b border-gray-200">
-          <td class="py-3 px-4">
+          <td class="py-3 px-4 whitespace-nowrap">
             {{ formatDate(saving.date) }}
           </td>
-          <td class="py-3 px-4">
+          <td class="py-3 px-4 whitespace-nowrap">
             {{ saving.category }}
           </td>
           <td class="py-3 px-4">
             {{ saving.description }}
           </td>
-          <td class="py-3 px-4">
+          <td class="py-3 px-4 whitespace-nowrap">
             {{ saving.amount.toFixed(2) }}
             zł
           </td>
-          <td class="py-3 px-4">
+          <td class="py-3 px-4 whitespace-nowrap">
             <v-icon
               name="fa-trash-alt"
               scale="1.2"
@@ -104,7 +106,7 @@
             />
           </td>
         </tr>
-        <tr>
+      <tr v-if="store.savings?.length === 0">
           <td colspan="4" class="py-4 text-center text-gray-500">
             Nie odnotowano jeszcze żadnych oszczędności.
           </td>

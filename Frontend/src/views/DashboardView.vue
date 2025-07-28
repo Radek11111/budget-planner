@@ -178,13 +178,13 @@ const tabs = [
       <!-- Tabs section -->
 
       <div class="bg-white rounded-lg shadow-md">
-        <div class="flex border-b border-gray-100">
+        <div class="flex flex-wrap border-b border-gray-100">
           <button
             v-for="tab in tabs"
             :key="tab.id"
             @click="activeTab = tab.id"
             :class="[
-              'flex-1 py-4 px-6 text-center font-medium whitespace-nowrap cursor-pointer !rounded-button',
+              'w-full sm:flex-1 py-4 px-6 text-center font-medium whitespace-nowrap cursor-pointer !rounded-button',
               activeTab === tab.id
                 ? 'text-orange border-b-2 border-text-orange'
                 : 'text-gray-600 hover:text-orange',

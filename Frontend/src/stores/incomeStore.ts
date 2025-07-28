@@ -1,5 +1,6 @@
 import { useIncomes } from '@/api/useIncomes'
 import type { Income } from '@/types'
+import dayjs from 'dayjs'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -13,7 +14,10 @@ export const useIncomeStore = defineStore('income', () => {
     isLoading.value = true
     error.value = null
     try {
-      const response = await getIncomes()
+      const now = dayjs()
+      const year = now.year()
+      const month = now.month() + 1
+      const response = await getIncomes({ year, month })
       incomes.value = response.data
       
     } catch (err) {
