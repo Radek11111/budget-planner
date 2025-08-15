@@ -16,7 +16,7 @@ const incomeStore = useIncomeStore()
 const expenseStore = useExpenseStore()
 const savingStore = useSavingStore()
 
-// Fetch data on mount
+
 onMounted(async () => {
   try {
     isLoading.value = true

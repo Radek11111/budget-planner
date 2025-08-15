@@ -1,4 +1,4 @@
-// services/apiClient.ts
+
 import axios from 'axios'
 import { useAuth } from '@clerk/vue'
 

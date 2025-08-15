@@ -15,6 +15,10 @@ const updateUserStore = () => {
     userStore.setUser({
       id: user.value.id,
       email: user.value.emailAddresses[0]?.emailAddress || '',
+      role:
+        typeof user.value.publicMetadata.role === 'string'
+          ? user.value.publicMetadata.role
+          : 'member',
     })
   } else {
     userStore.clearUser()
@@ -40,10 +44,16 @@ const isNotDashboard = computed(() => route.path !== '/dashboard')
         </div>
         <div v-if="isLoaded" class="flex gap-4 items-center justify-end">
           <router-link
-            v-if="isUserSignedIn && isNotDashboard"
+            v-if="isUserSignedIn && isNotDashboard && userStore.role !== 'admin'"
             to="/dashboard"
             class="bg-orange-dark text-slate-900 font-bold px-4 py-2 rounded gap-2"
             >Panel Użytkownika</router-link
+          >
+          <router-link
+            v-if="isUserSignedIn && isNotDashboard && userStore.role === 'admin'"
+            to="/admin"
+            class="bg-orange-dark text-slate-900 font-bold px-4 py-2 rounded gap-2"
+            >Panel Administratora</router-link
           >
           <SignIn />
         </div>
