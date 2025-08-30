@@ -1,4 +1,5 @@
 import { verifyToken, createClerkClient } from "@clerk/backend";
+import { db } from "../db";
 import type { FastifyRequest, FastifyReply } from "fastify";
 
 const clerkClient = createClerkClient({
@@ -25,12 +26,22 @@ export async function authMiddleware(
       return reply.status(401).send({ error: "Invalid token" });
     }
 
-
     const user = await clerkClient.users.getUser(userId);
     if (!user) {
       return reply.status(401).send({ error: "User not found" });
     }
-   const role = user.publicMetadata?.role || "member";
+    const role = user.publicMetadata?.role || "member";
+
+    await db.user.upsert({
+      where: { id: user.id },
+      update: {},
+      create: {
+        id: user.id,
+        email: user.emailAddresses[0]?.emailAddress || "",
+        role: String(role),
+      },
+    });
+    
     request.user = {
       id: user.id,
       email: user.emailAddresses[0]?.emailAddress ?? "",
@@ -39,6 +50,5 @@ export async function authMiddleware(
   } catch (error) {
     console.error("Authentication error:", error);
     return reply.status(401).send({ error: "Unauthorized" });
-    
   }
 }

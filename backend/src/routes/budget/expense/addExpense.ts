@@ -24,12 +24,12 @@ export async function addExpense(server: FastifyInstance) {
             connectOrCreate: {
               where: {
                 userId_name: {
-                  userId: request.user.id,
+                  userId: userId,
                   name: "Default Budget",
                 },
               },
               create: {
-                userId: request.user.id,
+                userId: userId,
                 name: "Default Budget",
                 total: 0,
               },

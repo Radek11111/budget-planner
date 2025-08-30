@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SignIn from '@/components/SignIn.vue'
 import { useAuth, useUser } from '@clerk/vue'
-import { useUserStore } from './stores/user'
+import { useUserStore } from './stores/useUserStore'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -27,7 +27,7 @@ const updateUserStore = () => {
 
 onMounted(updateUserStore)
 
-watch(isSignedIn, updateUserStore, { immediate: true })
+watch([isSignedIn, user], updateUserStore, { immediate: true })
 
 const isUserSignedIn = computed(() => userStore.isSignIn)
 const isNotDashboard = computed(() => route.path !== '/dashboard')

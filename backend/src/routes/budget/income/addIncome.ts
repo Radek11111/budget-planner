@@ -14,7 +14,8 @@ export async function addIncome(server: FastifyInstance) {
       schema: { body: zodToJsonSchema(TransactionSchema) },
     },
     async (request, reply) => {
-      if (!request.user) return reply.status(401).send({ error: "Unauthorized" });
+      if (!request.user)
+        return reply.status(401).send({ error: "Unauthorized" });
       const userId = request.user.id;
 
       const income = await db.income.create({
@@ -24,12 +25,12 @@ export async function addIncome(server: FastifyInstance) {
             connectOrCreate: {
               where: {
                 userId_name: {
-                  userId: request.user.id,
+                  userId: userId,
                   name: "Default Budget",
                 },
               },
               create: {
-                userId: request.user.id,
+                userId: userId,
                 name: "Default Budget",
                 total: 0,
               },
