@@ -11,7 +11,7 @@ const clerk = useClerk()
     <SignedOut>
       <button
         @click="clerk.openSignIn"
-        class="px-6 py-2 bg-gradient-to-r from bg-indigo-600 to-purple-600 text-white font-medium text-lg rounded-lg shadow-lg hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl active:scale-95 transition-all duration-200 focus:outline=none focus:ring2 focus:ring-purple-400 focus:ring-offset-2"
+        class="bg-white text-orange-dark border border-orange-dark font-bold px-5 py-2.5 rounded-lg transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
       >
         <div class="flex items-center space-x-2">
           <svg
