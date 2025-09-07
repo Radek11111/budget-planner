@@ -65,7 +65,7 @@ const handleLinkClick = (path: string) => {
           <router-link
             v-if="dashboardLink"
             :to="dashboardLink.to"
-            class="btn-primary bg-orange-dark text-slate-900 font-bold px-5 py-2.5 rounded-lg gap-2"
+            class="btn-primary bg-orange-light text-white font-bold px-5 py-2.5 rounded-lg gap-2"
           >
             {{ dashboardLink.label }}
           </router-link>
