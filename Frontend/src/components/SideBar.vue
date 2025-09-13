@@ -48,7 +48,7 @@ const handleNavigation = (path: string) => {
       </div>
       <div class="absolute bottom-4 right-4">
         <div class="flex items-center gap-2">
-          <CiLogout size="40" />
+          
           <SignIn />
         </div>
       </div>

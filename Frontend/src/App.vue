@@ -3,14 +3,23 @@ import SignIn from '@/components/SignIn.vue'
 import { useAuth, useUser } from '@clerk/vue'
 import { useUserStore } from './stores/useUserStore'
 import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+
 import router from './router'
 import SideBar from './components/SideBar.vue'
 
-const route = useRoute()
 const { user } = useUser()
 const userStore = useUserStore()
 const { isLoaded, isSignedIn } = useAuth()
+
+watch(
+  () => isSignedIn.value,
+  (signedIn) => {
+    if (isLoaded.value && signedIn && router.currentRoute.value.path === '/') {
+      router.replace('/user')
+    }
+  },
+  { immediate: true },
+)
 
 watch(
   [isSignedIn, user],
@@ -32,7 +41,7 @@ watch(
 )
 
 const isUserSignedIn = computed(() => userStore.isSignIn)
-const isNotDashboard = computed(() => route.path !== '/dashboard')
+const isNotDashboard = computed(() => router.currentRoute.value.path !== '/dashboard')
 
 const dashboardLink = computed(() => {
   if (!isUserSignedIn.value || !isNotDashboard.value) return null
@@ -94,7 +103,11 @@ const handleLinkClick = (path: string) => {
       :isUserSignedIn="isUserSignedIn"
     />
 
-    <main>
+    <div v-if="!isLoaded" class="flex justify-center items-center py-8">
+      <v-icon name="la-spinner-solid" scale="3" fill="orange" animation="spin" />
+      <p class="text-gray-600">Ładowanie danych...</p>
+    </div>
+    <main v-else>
       <router-view />
     </main>
   </div>

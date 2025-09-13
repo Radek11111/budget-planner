@@ -7,7 +7,7 @@ import App from './App.vue'
 import router from './router'
 import VueSweetalert2 from 'vue-sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
-import { motion } from 'framer-motion'
+import { MotionPlugin } from '@vueuse/motion'
 import {
   FaPiggyBank,
   FaShoppingCart,
@@ -43,9 +43,9 @@ const app = createApp(App)
 app.use(clerkPlugin, {
   publishableKey: clerkPubKey,
 })
+app.use(MotionPlugin)
 app.use(VueSweetalert2)
 app.use(createPinia())
 app.use(router)
 app.component('v-icon', OhVueIcon)
-app.component('MotionDiv', motion.div)
 app.mount('#app')

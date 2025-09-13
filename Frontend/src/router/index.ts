@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import { useAuth } from '@clerk/vue'
 
 import { useUserStore } from '@/stores/useUserStore'
+import { useAuth } from '@clerk/vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,6 +11,14 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+    },
+    {
+      path: '/user',
+      name: 'userHome',
+      component: () => import('../views/UserHomeView.vue'),
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/dashboard',
@@ -32,12 +40,19 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const { isSignedIn } = useAuth()
+  const { isSignedIn, isLoaded } = useAuth()
   const userStore = useUserStore()
+  if (!isLoaded.value) {
+    return next()
+  }
 
-  if (to.meta.requiresAuth && !isSignedIn) {
+  if (to.meta.requiresAuth && !isSignedIn.value) {
     return next('/')
   }
+  if (to.path === '/' && isSignedIn.value) {
+    return next('/user')
+  }
+
   if (to.path.startsWith('/admin') && userStore.role !== 'admin') {
     return next('/')
   }
