@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import Button from '@/components/ui/button/Button.vue'
-import { features } from '@/constants/ImageFeatures'
+import { features } from '../constants/imageFeatures'
+import { useClerkAuth } from '@/composabes/useClerkAuth'
+import { SignedOut } from '@clerk/vue'
+
+const { signIn } = useClerkAuth()
 </script>
 
 <template>
@@ -18,12 +22,15 @@ import { features } from '@/constants/ImageFeatures'
           Zacznij planować swój budżet już dziś i zyskaj kontrolę nad swoimi finansami
         </h1>
         <div class="mt-8">
-          <Button
-            size="lg"
-            class="rounded-2xl px-10 py-6 shadow-lg bg-orange-light btn-primary text-xl"
-          >
-            Rozpocznij teraz
-          </Button>
+          <SignedOut>
+            <Button
+              @click="signIn"
+              size="lg"
+              class="rounded-2xl px-10 py-6 shadow-lg bg-orange-light btn-primary text-xl"
+            >
+              Rozpocznij teraz
+            </Button>
+          </SignedOut>
         </div>
         <p class="mt-4 text-slate-600 text-lg md:text-xl">
           Proste narzędzie, które pomoże Ci zarządzać wydatkami, oszczędzać i realizować cele
@@ -62,12 +69,16 @@ import { features } from '@/constants/ImageFeatures'
       <h2 class="text-2xl md:text-3xl font-bold text-slate-600 mt-6 items-center text-center">
         Dołącz do tysięcy użytkowników i zacznij świadomie zarządzać finansami
       </h2>
-      <Button
+      <SignedOut>
+
+        <Button
+        @click="signIn"
         size="lg"
         class="text-white bg-orange-light rounded-2xl px-12 py-8 shadow-md hover:shadow-xl transition-all btn-primary text-3xl"
-      >
+        >
         Załóż konto
       </Button>
+    </SignedOut>
     </div>
   </div>
 </template>
