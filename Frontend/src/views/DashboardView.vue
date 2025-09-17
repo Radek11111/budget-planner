@@ -8,7 +8,7 @@ import { useExpenseStore } from '@/stores/expenseStore'
 import { useSavingStore } from '@/stores/savingStore'
 import Swal from 'sweetalert2'
 import { useTotalAmount } from '@/composabes/useTotalAmount'
-import { useSpendingWarning } from '@/components/useSprendingWarning'
+import { useSpendingWarning } from '@/composabes/useSprendingWarning'
 import FinancePieChart from '@/components/FinancePieChart.vue'
 
 const isLoading = ref(false)
@@ -82,7 +82,7 @@ const tabs = [
         >
           <div class="flex items-center mb-4">
             <v-icon
-              name="io-wallet-outline"
+              name="io-wallet"
               scale="1.5"
               fill="orange"
               animation="pulse"

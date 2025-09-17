@@ -21,6 +21,10 @@ import {
   FaUser,
   RiLogoutBoxLine,
   LaWindowClose,
+  BiFileArrowUpFill,
+  BiFileArrowDownFill,
+  IoWallet,
+  MdLocalgrocerystoreRound,
 } from 'oh-vue-icons/icons'
 addIcons(
   IoWalletOutline,
@@ -35,6 +39,10 @@ addIcons(
   FaUser,
   RiLogoutBoxLine,
   LaWindowClose,
+  BiFileArrowDownFill,
+  BiFileArrowUpFill,
+  IoWallet,
+  MdLocalgrocerystoreRound,
 )
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY

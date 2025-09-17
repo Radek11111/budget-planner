@@ -5,6 +5,7 @@ import { useIncomeStore } from '@/stores/incomeStore'
 import { useSavingStore } from '@/stores/savingStore'
 import { computed, onMounted, ref } from 'vue'
 import Swal from 'sweetalert2'
+import FinanseLineChart from '../components/FinanseLineChart.vue'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
@@ -31,14 +32,12 @@ onMounted(async () => {
   }
 })
 
-
 const totalIncome = useTotalAmount(computed(() => incomeStore.incomes))
 const totalExpense = useTotalAmount(computed(() => expenseStore.expenses))
 const totalSaving = useTotalAmount(computed(() => savingStore.savings))
 
-
 const expensesPercentage = computed(() =>
-totalIncome.value > 0 ? (totalExpense.value / totalIncome.value) * 100 : 0,
+  totalIncome.value > 0 ? (totalExpense.value / totalIncome.value) * 100 : 0,
 )
 
 const biggestExpense = computed(() => {
@@ -52,22 +51,41 @@ const savingsPercentage = computed(() =>
 <template>
   <div class="p-6 space-y-6">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-white p-4 rounded-xl shadow">
-        <p class="text-gray-600">Całkowite wydatki</p>
-        <h2 class="text-2xl font-bold ">{{ totalExpense.toFixed(2) }} zł</h2>
+      <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow">
+        <div class="flex flex-col">
+          <p class="text-gray-600">Całkowite wydatki</p>
+          <h2 class="text-2xl font-bold">{{ totalExpense.toFixed(2) }} zł</h2>
+        </div>
+        <v-icon name="bi-file-arrow-down-fill" scale="2.5" fill="#FF474D"></v-icon>
       </div>
-      <div class="bg-white p-4 rounded-xl shadow">
-        <p class="text-gray-600">Oszczędności</p>
-        <h2 class="text-2xl font-bold ">{{ totalSaving.toFixed(2) }} zł</h2>
+
+      <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow">
+        <div class="flex flex-col">
+          <p class="text-gray-600">Oszczędności</p>
+          <h2 class="text-2xl font-bold text-orange">{{ totalSaving.toFixed(2) }} zł</h2>
+        </div>
+        <v-icon name="bi-file-arrow-up-fill" scale="2.5" fill="#ffb347"></v-icon>
       </div>
-      <div class="bg-white p-4 rounded-xl shadow">
-        <p class="text-gray-600">Całkowity dochód</p>
-        <h2 class="text-2xl font-bold ">{{ totalIncome.toFixed(2) }} zł</h2>
+
+      <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow">
+        <div class="flex flex-col">
+          <p class="text-gray-600">Całkowity dochód</p>
+          <h2 class="text-2xl font-bold text-blue-600">{{ totalIncome.toFixed(2) }} zł</h2>
+        </div>
+        <v-icon name="io-wallet" scale="2.5" fill="#155dfc"></v-icon>
       </div>
-      <div class="bg-white p-4 rounded-xl shadow">
-        <p class="text-gray-600">Największy wydatek</p>
-        <h2 class="text-2xl font-bold ">{{ biggestExpense.toFixed(2) }} zł</h2>
+
+      <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow">
+        <div class="flex flex-col">
+          <p class="text-gray-600">Największy wydatek</p>
+          <h2 class="text-2xl font-bold text-purple-800">{{ biggestExpense.toFixed(2) }} zł</h2>
+        </div>
+        <v-icon name="md-localgrocerystore-round" scale="2.5" fill="#6e11b0"></v-icon>
       </div>
+    </div>
+    <div class="bg-white p-4 rounded-xl shadow">
+      <h3 class="text-lg font-semibold mb-4">Trendy wydatków</h3>
+      <FinanseLineChart />
     </div>
   </div>
 </template>
