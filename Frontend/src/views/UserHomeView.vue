@@ -31,21 +31,17 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
-
+// Cart calculations
 const totalIncome = useTotalAmount(computed(() => incomeStore.incomes))
 const totalExpense = useTotalAmount(computed(() => expenseStore.expenses))
 const totalSaving = useTotalAmount(computed(() => savingStore.savings))
-
-const expensesPercentage = computed(() =>
-  totalIncome.value > 0 ? (totalExpense.value / totalIncome.value) * 100 : 0,
-)
-
 const biggestExpense = computed(() => {
   return expenseStore.expenses.reduce((max, expense) => Math.max(max, expense.amount), 0)
 })
-const savingsPercentage = computed(() =>
-  totalIncome.value > 0 ? (totalSaving.value / totalIncome.value) * 100 : 0,
-)
+//  Calendary logic
+const currentMonth = ref<{month: string; value: number}[]>([]) 
+
+
 </script>
 
 <template>
@@ -86,6 +82,11 @@ const savingsPercentage = computed(() =>
     <div class="bg-white p-4 rounded-xl shadow">
       <h3 class="text-lg font-semibold mb-4">Trendy wydatków</h3>
       <FinanseLineChart />
+    </div>
+    <div class="">
+      <div class="">
+        <h3></h3>
+      </div>
     </div>
   </div>
 </template>
