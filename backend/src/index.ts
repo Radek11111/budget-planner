@@ -19,6 +19,7 @@ declare module "fastify" {
 
 dotenv.config();
 
+
 const server = Fastify({
   logger: true,
 });
@@ -38,9 +39,10 @@ server.get("/", async () => {
 });
 
 const start = async () => {
+  const port = Number(process.env.PORT || 3001);
   try {
-    await server.listen({ port: 3001 });
-    console.log(`Server running on http://localhost:3001`);
+    await server.listen({ port, host: '0.0.0.0' });
+   
   } catch (error) {
     server.log.error(error);
     process.exit(1);
