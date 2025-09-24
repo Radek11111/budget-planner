@@ -3,6 +3,8 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": { "*": ["src/*"] },
+    "outDir": "dist",
+    "rootDir": "src",
 
     "target": "es2021",
     "typeRoots": ["./src/types", "./node_modules/@types"],
