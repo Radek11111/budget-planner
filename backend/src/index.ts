@@ -19,7 +19,6 @@ declare module "fastify" {
 
 dotenv.config();
 
-
 const server = Fastify({
   logger: true,
 });
@@ -27,7 +26,7 @@ const server = Fastify({
 server.register(sensible);
 
 server.register(cors, {
-  origin: process.env.VITE_FRONTEND_URL,
+  origin: process.env.FRONTEND_URL,
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 });
@@ -41,8 +40,7 @@ server.get("/", async () => {
 const start = async () => {
   const port = Number(process.env.PORT || 3001);
   try {
-    await server.listen({ port, host: '0.0.0.0' });
-   
+    await server.listen({ port, host: "0.0.0.0" });
   } catch (error) {
     server.log.error(error);
     process.exit(1);
