@@ -31,4 +31,5 @@ coverage
 
 # local env files
 .env*
+.env.product*
 
