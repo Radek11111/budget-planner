@@ -6,7 +6,7 @@ export const createApiClerkClient = () => {
   const { getToken } = useAuth()
 
   const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL: "/api",
   })
 
   api.interceptors.request.use(async (config) => {
