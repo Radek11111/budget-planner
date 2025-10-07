@@ -10,13 +10,22 @@ export const useSavingStore = defineStore('saving', () => {
   const error = ref<string | null>(null)
 
   const { getSavings, addSaving, deleteSaving } = useSavings()
-  const fetchSavings = async () => {
+  const fetchSavings = async (year?: number, month?: number) => {
     isLoading.value = true
     error.value = null
     try {
-      const now = dayjs()
-      const year = now.year()
-      const month = now.month() + 1
+      let params: { year?: number; month?: number } = {}
+      if (year === undefined) {
+        const now = dayjs()
+        params.year = now.year()
+        params.month = now.month() + 1
+      } else {
+        params.year = year
+        if (month !== undefined) {
+          params.month = month
+        }
+      }
+
       const response = await getSavings({ year, month })
       savings.value = response.data
     } catch (err) {

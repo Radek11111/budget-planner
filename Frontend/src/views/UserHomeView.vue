@@ -7,6 +7,7 @@ import { computed, onMounted, ref } from 'vue'
 import Swal from 'sweetalert2'
 import FinanseLineChart from '../components/FinanseLineChart.vue'
 import MonthTabs from '@/components/transactionReview/MonthTabs.vue'
+import dayjs from 'dayjs'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
@@ -16,10 +17,11 @@ const savingStore = useSavingStore()
 onMounted(async () => {
   try {
     isLoading.value = true
+    const currentYear = dayjs().year()
     await Promise.all([
-      incomeStore.fetchIncomes(),
-      expenseStore.fetchExpenses(),
-      savingStore.fetchSavings(),
+      incomeStore.fetchIncomes(currentYear),
+      expenseStore.fetchExpenses(currentYear),
+      savingStore.fetchSavings(currentYear),
     ])
   } catch (error) {
     console.error('Error fetching data:', error)
