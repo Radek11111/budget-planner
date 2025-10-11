@@ -3,7 +3,7 @@ import { useExpenseStore } from '@/stores/expenseStore'
 import { useIncomeStore } from '@/stores/incomeStore'
 import { useSavingStore } from '@/stores/savingStore'
 import { computed, onMounted, ref } from 'vue'
-import MonthTabs from '../transactionReview/monthTabs.vue'
+import MonthTabs from '../transactionReview/MonthTabs.vue'
 import MonthlyCalendar from '../transactionReview/MonthlyCalendar.vue'
 
 type TransactionType = 'income' | 'expense' | 'saving'
@@ -71,7 +71,6 @@ const dailySummary = computed(() => {
 </script>
 <template>
   <div class="p-4">
-    <h2 class="text-xl font-semibold mb-4">Przegląd miesięczny</h2>
     <MonthTabs v-model:selectedMonth="selectedMonth" v-model:selectedYear="selectedYear" />
     <MonthlyCalendar :year="selectedYear" :month="selectedMonth" :dailySummary="dailySummary" />
   </div>

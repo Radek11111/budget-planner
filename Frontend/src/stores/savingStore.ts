@@ -26,7 +26,7 @@ export const useSavingStore = defineStore('saving', () => {
         }
       }
 
-      const response = await getSavings({ year, month })
+      const response = await getSavings(params)
       savings.value = response.data
     } catch (err) {
       error.value = 'Failed to fetch savings'

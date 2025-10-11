@@ -13,18 +13,18 @@ export const useExpenseStore = defineStore('expense', () => {
   const fetchExpenses = async (year?: number, month?: number) => {
     isLoading.value = true
     error.value = null
-    try {
-      let params: { year?: number; month?: number } = {}
-      if (year === undefined) {
-        const now = dayjs()
-        params.year = now.year()
-        params.month = now.month() + 1
-      } else {
-        params.year = year
-        if (month !== undefined) {
-          params.month = month
-        }
-      }
+       try {
+         let params: { year?: number; month?: number } = {}
+         if (year === undefined) {
+           const now = dayjs()
+           params.year = now.year()
+           params.month = now.month() + 1
+         } else {
+           params.year = year
+           if (month !== undefined) {
+             params.month = month
+           }
+         }
 
       const response = await getExpenses(params)
       expenses.value = response.data

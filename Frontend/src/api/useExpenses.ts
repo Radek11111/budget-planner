@@ -6,7 +6,9 @@ export const useExpenses = () => {
   const api = createApiClerkClient()
   return {
     getExpenses: async (params?: { year?: number; month?: number }): Promise<AxiosResponse<Expense[]>> => {
+   
       const res = await api.get('/budget/expense', { params })
+    
       return res
     },
     addExpense: (data: Expense) => api.post('/budget/expense', data),

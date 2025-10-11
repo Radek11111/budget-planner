@@ -6,8 +6,8 @@ import { useSavingStore } from '@/stores/savingStore'
 import { computed, onMounted, ref } from 'vue'
 import Swal from 'sweetalert2'
 import FinanseLineChart from '../components/FinanseLineChart.vue'
-import MonthTabs from '@/components/transactionReview/MonthTabs.vue'
 import dayjs from 'dayjs'
+import MonthlyOverview from '@/components/transactionReview/MonthlyOverview.vue'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
@@ -23,6 +23,7 @@ onMounted(async () => {
       expenseStore.fetchExpenses(currentYear),
       savingStore.fetchSavings(currentYear),
     ])
+    console.log('💰 Expenses in store:', expenseStore.expenses)
   } catch (error) {
     console.error('Error fetching data:', error)
     Swal.fire({
@@ -41,9 +42,6 @@ const totalSaving = useTotalAmount(computed(() => savingStore.savings))
 const biggestExpense = computed(() => {
   return expenseStore.expenses.reduce((max, expense) => Math.max(max, expense.amount), 0)
 })
-//  Calendary logic
-const currentMonth = ref<{ month: string; value: number }[]>([])
-const selectedMonth = ref(1)
 </script>
 
 <template>
@@ -91,12 +89,8 @@ const selectedMonth = ref(1)
         <p class="text-sm text-gray-500 mt-1">Wybierz miesiąc, aby zobaczyć statystyki</p>
       </div>
 
-      <div class="border-t">
-        <MonthTabs
-          v-model:selected-month="selectedMonth"
-          class="grid grid-cols-3 md:grid-cols-4 lg:flex lg:flex-row"
-        />
-      </div>
+      <MonthlyOverview />
+      <div class="border-t"></div>
     </div>
   </div>
 </template>
