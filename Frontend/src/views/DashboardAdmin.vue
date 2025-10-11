@@ -10,7 +10,7 @@ const { getToken } = useAuth()
 onMounted(async () => {
   try {
     const token = await getToken.value()
-    const res = await axios.get('http://localhost:3001/admin/users', {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/admin/users`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

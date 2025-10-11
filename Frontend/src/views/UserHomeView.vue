@@ -6,7 +6,8 @@ import { useSavingStore } from '@/stores/savingStore'
 import { computed, onMounted, ref } from 'vue'
 import Swal from 'sweetalert2'
 import FinanseLineChart from '../components/FinanseLineChart.vue'
-import MonthTabs from '@/components/transactionReview/MonthTabs.vue'
+import dayjs from 'dayjs'
+import MonthlyOverview from '@/components/transactionReview/MonthlyOverview.vue'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
@@ -16,11 +17,13 @@ const savingStore = useSavingStore()
 onMounted(async () => {
   try {
     isLoading.value = true
+    const currentYear = dayjs().year()
     await Promise.all([
-      incomeStore.fetchIncomes(),
-      expenseStore.fetchExpenses(),
-      savingStore.fetchSavings(),
+      incomeStore.fetchIncomes(currentYear),
+      expenseStore.fetchExpenses(currentYear),
+      savingStore.fetchSavings(currentYear),
     ])
+    console.log('💰 Expenses in store:', expenseStore.expenses)
   } catch (error) {
     console.error('Error fetching data:', error)
     Swal.fire({
@@ -39,9 +42,6 @@ const totalSaving = useTotalAmount(computed(() => savingStore.savings))
 const biggestExpense = computed(() => {
   return expenseStore.expenses.reduce((max, expense) => Math.max(max, expense.amount), 0)
 })
-//  Calendary logic
-const currentMonth = ref<{ month: string; value: number }[]>([])
-const selectedMonth = ref(1)
 </script>
 
 <template>
@@ -83,18 +83,14 @@ const selectedMonth = ref(1)
       <h3 class="text-lg font-semibold mb-4">Trendy wydatków</h3>
       <FinanseLineChart />
     </div>
-    <div class="bg-white p-4 rounded-xl shadow ">
+    <div class="bg-white p-4 rounded-xl shadow">
       <div class="border-gray-200 pb-2 mb-2">
         <h3 class="text-lg font-semibold text-gray-800">Przegląd miesięczny</h3>
         <p class="text-sm text-gray-500 mt-1">Wybierz miesiąc, aby zobaczyć statystyki</p>
       </div>
 
-      <div class="border-t ">
-        <MonthTabs
-          v-model:selected-month="selectedMonth"
-          class="grid grid-cols-3 md:grid-cols-4 lg:flex lg:flex-row "
-        />
-      </div>
+      <MonthlyOverview />
+      <div class="border-t"></div>
     </div>
   </div>
 </template>

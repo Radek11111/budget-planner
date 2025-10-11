@@ -10,16 +10,24 @@ export const useIncomeStore = defineStore('income', () => {
   const error = ref<string | null>(null)
 
   const { getIncomes, addIncome, deleteIncome } = useIncomes()
-  const fetchIncomes = async () => {
+  const fetchIncomes = async (year?: number, month?: number) => {
     isLoading.value = true
     error.value = null
     try {
-      const now = dayjs()
-      const year = now.year()
-      const month = now.month() + 1
-      const response = await getIncomes({ year, month })
+      let params: { year?: number; month?: number } = {}
+      if (year === undefined) {
+        const now = dayjs()
+        params.year = now.year()
+        params.month = now.month() + 1
+      } else {
+        params.year = year
+        if (month !== undefined) {
+          params.month = month
+        }
+      }
+
+      const response = await getIncomes(params)
       incomes.value = response.data
-      
     } catch (err) {
       error.value = 'Failed to fetch incomes'
       console.error(err)
