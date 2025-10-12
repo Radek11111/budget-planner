@@ -82,7 +82,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="expense in store.expenses" :key="expense.id" class="border-b border-gray-200">
+        <tr
+          v-for="expense in store.monthlyExpenses"
+          :key="expense.id"
+          class="border-b border-gray-200"
+        >
           <td class="py-3 px-4 whitespace-nowrap">
             {{ formatDate(expense.date) }}
           </td>
@@ -103,7 +107,7 @@
             />
           </td>
         </tr>
-        <tr v-if="store.expenses?.length === 0">
+        <tr v-if="store.monthlyExpenses?.length === 0">
           <td colspan="4" class="py-4 text-center text-gray-500">
             Nie odnotowano jeszcze żadnych wydatków.
           </td>
@@ -126,7 +130,7 @@ const category = ref('')
 
 const store = useExpenseStore()
 onMounted(() => {
-  store.fetchExpenses()
+  store.fetchMonthlyExpenses()
 })
 
 const handleSubmit = async () => {

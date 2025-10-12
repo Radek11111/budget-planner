@@ -15,7 +15,6 @@ export async function getSaving(server: FastifyInstance) {
         const { year, month } = request.query as {
           year?: string;
           month?: string;
-          period?: "month" | "year";
         };
 
         let dataFilter = {};

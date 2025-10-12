@@ -2,7 +2,6 @@ import { db } from "../../../db";
 import { FastifyInstance } from "fastify";
 import { authMiddleware } from "../../../middleware/authMiddleware";
 
-
 export async function getExpense(server: FastifyInstance) {
   server.get(
     "/expense",
@@ -13,34 +12,32 @@ export async function getExpense(server: FastifyInstance) {
           return reply.status(401).send({ error: "Unauthorized" });
         }
 
-
         const userId = request.user.id;
-        const {year, month} = request.query as {
-          year?: string
-          month?: string
-          period?: 'month' | 'year'
-        }
+        const { year, month } = request.query as {
+          year?: string;
+          month?: string;
+        };
 
-        let dataFilter = {}
+        let dataFilter = {};
 
-        if(year && month) {
-          const start= new Date(Number(year), Number(month) - 1,1)
-          const end = new Date(Number(year), Number(month), 1)
-          dataFilter= {
+        if (year && month) {
+          const start = new Date(Number(year), Number(month) - 1, 1);
+          const end = new Date(Number(year), Number(month), 1);
+          dataFilter = {
             date: {
               gte: start,
-              lt: end
+              lt: end,
             },
-          }
-        }else if (year) {
+          };
+        } else if (year) {
           const start = new Date(Number(year), 0, 1);
           const end = new Date(Number(year) + 1, 0, 1);
           dataFilter = {
             date: {
               gte: start,
               lt: end,
-            }
-          }
+            },
+          };
         }
         const expenses = await db.expense.findMany({
           where: { budget: { userId }, ...dataFilter },

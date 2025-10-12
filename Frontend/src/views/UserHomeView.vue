@@ -19,11 +19,11 @@ onMounted(async () => {
     isLoading.value = true
     const currentYear = dayjs().year()
     await Promise.all([
-      incomeStore.fetchIncomes(currentYear),
-      expenseStore.fetchExpenses(currentYear),
-      savingStore.fetchSavings(currentYear),
+      incomeStore.fetchYearlyIncomes(currentYear),
+      expenseStore.fetchYearlyExpenses(currentYear),
+      savingStore.fetchYearlySavings(currentYear),
     ])
-    console.log('💰 Expenses in store:', expenseStore.expenses)
+   
   } catch (error) {
     console.error('Error fetching data:', error)
     Swal.fire({
@@ -36,11 +36,11 @@ onMounted(async () => {
   }
 })
 // Cart calculations
-const totalIncome = useTotalAmount(computed(() => incomeStore.incomes))
-const totalExpense = useTotalAmount(computed(() => expenseStore.expenses))
-const totalSaving = useTotalAmount(computed(() => savingStore.savings))
+const totalIncome = useTotalAmount(computed(() => incomeStore.yearlyIncomes))
+const totalExpense = useTotalAmount(computed(() => expenseStore.yearlyExpenses))
+const totalSaving = useTotalAmount(computed(() => savingStore.yearlySavings))
 const biggestExpense = computed(() => {
-  return expenseStore.expenses.reduce((max, expense) => Math.max(max, expense.amount), 0)
+  return expenseStore.yearlyExpenses.reduce((max, expense) => Math.max(max, expense.amount), 0)
 })
 </script>
 

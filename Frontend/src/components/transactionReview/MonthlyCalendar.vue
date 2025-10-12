@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 const props = defineProps<{
   year: number
@@ -10,6 +10,14 @@ const props = defineProps<{
 const daysInMonth = computed(() => {
   return new Date(props.year, props.month, 0).getDate()
 })
+
+watch(
+  () => props.dailySummary,
+  (val) => {
+
+  },
+  { deep: true },
+)
 </script>
 <template>
   <div class="grid grid-cols-7 gap-2 mt-4">
