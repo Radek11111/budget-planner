@@ -2,7 +2,7 @@
 import { useExpenseStore } from '@/stores/expenseStore'
 import { useIncomeStore } from '@/stores/incomeStore'
 import { useSavingStore } from '@/stores/savingStore'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import MonthTabs from '../transactionReview/MonthTabs.vue'
 import MonthlyCalendar from '../transactionReview/MonthlyCalendar.vue'
 
@@ -18,40 +18,46 @@ const incomeStore = useIncomeStore()
 const expenseStore = useExpenseStore()
 const savingStore = useSavingStore()
 
-const selectedMonth = ref(new Date().getMonth())
+const selectedMonth = ref(new Date().getMonth() + 1)
 const selectedYear = ref(new Date().getFullYear())
 
 onMounted(async () => {
   await Promise.all([
-    incomeStore.fetchIncomes(),
-    expenseStore.fetchExpenses(),
-    savingStore.fetchSavings(),
+    incomeStore.fetchYearlyIncomes(),
+    expenseStore.fetchYearlyExpenses(),
+    savingStore.fetchYearlySavings(),
   ])
 })
 
 const allTransactions = computed(() => [
-  ...incomeStore.incomes.map((income) => ({
+  ...incomeStore.yearlyIncomes.map((income) => ({
     date: income.date,
     type: 'income',
     amount: income.amount,
   })),
-  ...expenseStore.expenses.map((expense) => ({
+  ...expenseStore.yearlyExpenses.map((expense) => ({
     date: expense.date,
     type: 'expense',
     amount: expense.amount,
   })),
-  ...savingStore.savings.map((saving) => ({
+  ...savingStore.yearlySavings.map((saving) => ({
     date: saving.date,
     type: 'saving',
     amount: saving.amount,
   })),
 ])
 
+watch(
+  () => allTransactions.value,
+  (val) => {},
+  { deep: true },
+)
+
 const monthlyTransactions = computed(() =>
   allTransactions.value.filter((transaction) => {
     const transactionDate = new Date(transaction.date)
     return (
-      transactionDate.getMonth() === selectedMonth.value &&
+      transactionDate.getMonth() + 1 === selectedMonth.value &&
       transactionDate.getFullYear() === selectedYear.value
     )
   }),
@@ -67,6 +73,10 @@ const dailySummary = computed(() => {
     result[day][transaction.type] += transaction.amount
   })
   return result
+})
+
+watch(dailySummary, (val) => {
+
 })
 </script>
 <template>

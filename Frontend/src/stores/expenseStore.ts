@@ -5,29 +5,46 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useExpenseStore = defineStore('expense', () => {
-  const expenses = ref<Expense[]>([])
+  const monthlyExpenses = ref<Expense[]>([])
+  const yearlyExpenses = ref<Expense[]>([])
+
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
   const { getExpenses, addExpense, deleteExpense } = useExpenses()
-  const fetchExpenses = async (year?: number, month?: number) => {
+
+  const fetchMonthlyExpenses = async (year?: number, month?: number) => {
     isLoading.value = true
     error.value = null
-       try {
-         let params: { year?: number; month?: number } = {}
-         if (year === undefined) {
-           const now = dayjs()
-           params.year = now.year()
-           params.month = now.month() + 1
-         } else {
-           params.year = year
-           if (month !== undefined) {
-             params.month = month
-           }
-         }
+    monthlyExpenses.value = []
+    try {
+      const now = dayjs()
+      const params = {
+        year: year ?? now.year(),
+        month: month ?? now.month() + 1,
+      }
 
       const response = await getExpenses(params)
-      expenses.value = response.data
+      monthlyExpenses.value = response.data
+    } catch (err) {
+      error.value = 'Failed to fetch expenses'
+      console.error(err)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const fetchYearlyExpenses = async (year?: number) => {
+    isLoading.value = true
+    error.value = null
+    yearlyExpenses.value = []
+    try {
+      const now = dayjs()
+      const params = {
+        year: year ?? now.year(),
+      }
+      const response = await getExpenses(params)
+      yearlyExpenses.value = response.data
     } catch (err) {
       error.value = 'Failed to fetch expenses'
       console.error(err)
@@ -38,7 +55,7 @@ export const useExpenseStore = defineStore('expense', () => {
   const addNewExpense = async (expense: Expense) => {
     try {
       await addExpense(expense)
-      await fetchExpenses()
+      await fetchMonthlyExpenses()
     } catch (err) {
       error.value = 'Failed to add expense'
       console.error(err)
@@ -47,18 +64,21 @@ export const useExpenseStore = defineStore('expense', () => {
   const removeExpense = async (expenseId: string) => {
     try {
       await deleteExpense(expenseId)
-      expenses.value = expenses.value.filter((expense) => expense.id !== expenseId)
+      monthlyExpenses.value = monthlyExpenses.value.filter((e) => e.id !== expenseId)
+      yearlyExpenses.value = yearlyExpenses.value.filter((e) => e.id !== expenseId)
     } catch (err) {
       error.value = 'Failed to remove expense'
       console.error(err)
     }
   }
   return {
-    expenses,
+    monthlyExpenses,
+    yearlyExpenses,
     isLoading,
     error,
-    fetchExpenses,
-    removeExpense,
+    fetchMonthlyExpenses,
+    fetchYearlyExpenses,
     addNewExpense,
+    removeExpense,
   }
 })

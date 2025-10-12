@@ -10,20 +10,23 @@ import Swal from 'sweetalert2'
 import { useTotalAmount } from '@/composabes/useTotalAmount'
 import { useSpendingWarning } from '@/composabes/useSprendingWarning'
 import FinancePieChart from '@/components/FinancePieChart.vue'
+import dayjs from 'dayjs'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
 const expenseStore = useExpenseStore()
 const savingStore = useSavingStore()
 
-
 onMounted(async () => {
+  const currentYear = dayjs().year()
+  const currentMonth = dayjs().month() + 1
   try {
     isLoading.value = true
     await Promise.all([
-      incomeStore.fetchIncomes(),
-      expenseStore.fetchExpenses(),
-      savingStore.fetchSavings(),
+      incomeStore.fetchMonthlyIncomes(currentYear, currentMonth),
+      ,
+      expenseStore.fetchMonthlyExpenses(currentYear, currentMonth),
+      savingStore.fetchMonthlySavings(currentMonth, currentYear),
     ])
   } catch (error) {
     console.error('Error fetching data:', error)
@@ -38,9 +41,9 @@ onMounted(async () => {
 })
 
 // Total amounts
-const totalIncome = useTotalAmount(computed(() => incomeStore.incomes))
-const totalExpense = useTotalAmount(computed(() => expenseStore.expenses))
-const totalSaving = useTotalAmount(computed(() => savingStore.savings))
+const totalIncome = useTotalAmount(computed(() => incomeStore.monthlyIncomes))
+const totalExpense = useTotalAmount(computed(() => expenseStore.monthlyExpenses))
+const totalSaving = useTotalAmount(computed(() => savingStore.monthlySavings))
 
 // Function percentage
 const expensesPercentage = computed(() =>
@@ -81,13 +84,7 @@ const tabs = [
           class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
         >
           <div class="flex items-center mb-4">
-            <v-icon
-              name="io-wallet"
-              scale="1.5"
-              fill="orange"
-              animation="pulse"
-              class="mr-3"
-            />
+            <v-icon name="io-wallet" scale="1.5" fill="orange" animation="pulse" class="mr-3" />
             <h2 class="text-xl font-semibold text-gray-800">Zarobki</h2>
           </div>
           <p class="text-3xl font-bold text-gray-800 mb-2">{{ totalIncome.toFixed(2) }}</p>

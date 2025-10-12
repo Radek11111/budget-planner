@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, watch } from 'vue'
 import {
   Chart as ChartJS,
   Title,
@@ -18,42 +18,48 @@ import { useExpenseStore } from '../stores/expenseStore'
 import dayjs from 'dayjs'
 import { MonthsLabels } from '@/constants/monthLabels'
 
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend, Filler)
+ChartJS.register(
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+)
 
 const expenseStore = useExpenseStore()
-
 
 const getYearlyExpenses = () => {
   const monthlyTotals: number[] = new Array(12).fill(0)
 
-  expenseStore.expenses.forEach((expense) => {
-    const monthIndex = dayjs(expense.date).month() 
+  expenseStore.yearlyExpenses.forEach((expense) => {
+    const monthIndex = dayjs(expense.date).month()
     monthlyTotals[monthIndex] += expense.amount
   })
 
   return monthlyTotals
 }
 
-onMounted(() => {
-  expenseStore.fetchExpenses()
+onMounted(async () => {
+  const currentYear = dayjs().year()
+
+  await expenseStore.fetchMonthlyExpenses(currentYear)
 })
-
-const expenseValues = computed(() => getYearlyExpenses())
-
-
 
 const chartData = computed<ChartData<'line'>>(() => ({
   labels: MonthsLabels,
   datasets: [
     {
       label: 'Wydatki',
-      data: expenseValues.value,
+      data: getYearlyExpenses(),
       borderColor: '#f87917',
-      backgroundColor: 'rgba(255, 127, 80, 0.1)', 
+      backgroundColor: 'rgba(255, 127, 80, 0.1)',
       borderWidth: 2,
       pointBackgroundColor: '#f87917',
       tension: 0.4,
-      fill: true, 
+      fill: true,
     },
   ],
 }))

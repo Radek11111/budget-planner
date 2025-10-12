@@ -82,7 +82,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="income in store.incomes" :key="income.id" class="border-b border-gray-200">
+        <tr
+          v-for="income in store.monthlyIncomes"
+          :key="income.id"
+          class="border-b border-gray-200"
+        >
           <td class="py-3 px-4 whitespace-nowrap">
             {{ formatDate(income.date) }}
           </td>
@@ -107,7 +111,7 @@
             />
           </td>
         </tr>
-        <tr v-if="store.incomes?.length === 0">
+        <tr v-if="store.monthlyIncomes?.length === 0">
           <td colspan="4" class="py-4 text-center text-gray-500">
             Nie odnotowano jeszcze żadnych zarobków.
           </td>
@@ -132,7 +136,7 @@ const category = ref('')
 const store = useIncomeStore()
 
 onMounted(() => {
-  store.fetchIncomes()
+  store.fetchMonthlyIncomes()
 })
 
 const handleSubmit = async () => {

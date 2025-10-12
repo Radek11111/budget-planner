@@ -73,7 +73,7 @@
     <div v-else-if="store.error" class="p-4 text-red-500">{{ store.error }}</div>
     <table class="w-full min-w-[700px] bg-white text-sm">
       <thead>
-      <tr class="bg-gray-100 text-gray-700">
+        <tr class="bg-gray-100 text-gray-700">
           <th class="py-3 px-4 text-left whitespace-nowrap">Data</th>
           <th class="py-3 px-4 text-left whitespace-nowrap">Kategoria</th>
           <th class="py-3 px-4 text-left">Opis</th>
@@ -82,7 +82,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="saving in store.savings" :key="saving.id" class="border-b border-gray-200">
+        <tr
+          v-for="saving in store.monthlySavings"
+          :key="saving.id"
+          class="border-b border-gray-200"
+        >
           <td class="py-3 px-4 whitespace-nowrap">
             {{ formatDate(saving.date) }}
           </td>
@@ -106,7 +110,7 @@
             />
           </td>
         </tr>
-      <tr v-if="store.savings?.length === 0">
+        <tr v-if="store.monthlySavings?.length === 0">
           <td colspan="4" class="py-4 text-center text-gray-500">
             Nie odnotowano jeszcze żadnych oszczędności.
           </td>
@@ -129,7 +133,7 @@ const description = ref('')
 const store = useSavingStore()
 
 onMounted(() => {
-  store.fetchSavings()
+  store.fetchMonthlySavings()
 })
 const handleSubmit = async () => {
   if (!date.value || amount.value === null || !category.value || !description.value) return
