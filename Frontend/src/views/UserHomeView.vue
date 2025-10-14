@@ -8,6 +8,7 @@ import Swal from 'sweetalert2'
 import FinanseLineChart from '../components/FinanseLineChart.vue'
 import dayjs from 'dayjs'
 import MonthlyOverview from '@/components/transactionReview/MonthlyOverview.vue'
+import ExpenseCategoriesPieChart from '@/components/transactionReview/ExpenseCategoriesPieChart.vue'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
@@ -23,7 +24,6 @@ onMounted(async () => {
       expenseStore.fetchYearlyExpenses(currentYear),
       savingStore.fetchYearlySavings(currentYear),
     ])
-   
   } catch (error) {
     console.error('Error fetching data:', error)
     Swal.fire({
@@ -83,14 +83,18 @@ const biggestExpense = computed(() => {
       <h3 class="text-lg font-semibold mb-4">Trendy wydatków</h3>
       <FinanseLineChart />
     </div>
-    <div class="bg-white p-4 rounded-xl shadow">
-      <div class="border-gray-200 pb-2 mb-2">
-        <h3 class="text-lg font-semibold text-gray-800">Przegląd miesięczny</h3>
-        <p class="text-sm text-gray-500 mt-1">Wybierz miesiąc, aby zobaczyć statystyki</p>
+    <div class="bg-white p-4 rounded-xl shadow grid grid-cols-1 gap-6 md:grid-cols-2">
+      <div class="">
+        <div class="border-gray-200 pb-2 mb-2">
+          <h3 class="text-lg font-semibold text-gray-800">Przegląd miesięczny</h3>
+          <p class="text-sm text-gray-500 mt-1">Wybierz miesiąc, aby zobaczyć statystyki</p>
+        </div>
+        <div class="border-t"></div>
+        <MonthlyOverview />
       </div>
-
-      <MonthlyOverview />
-      <div class="border-t"></div>
+      <div class="flex flex-col gap-6">
+        <ExpenseCategoriesPieChart />
+      </div>
     </div>
   </div>
 </template>

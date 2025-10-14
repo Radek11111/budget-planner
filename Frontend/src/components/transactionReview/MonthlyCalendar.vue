@@ -20,8 +20,8 @@ watch(
 )
 </script>
 <template>
-  <div class="grid grid-cols-7 gap-2 mt-4">
-    <div v-for="day in daysInMonth" :key="day" class="p-2 border rounded text-center">
+  <div class="grid grid-cols-4 gap-3 mt-4 ">
+    <div v-for="day in daysInMonth" :key="day" class="p-2 border rounded text-center flex flex-col items-center leading-tight min-h-[3rem]">
       <div class="font-bold">{{ day }}</div>
       <div v-if="props.dailySummary[day]">
         <p class="text-green-500" v-if="props.dailySummary[day].income">
