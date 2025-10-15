@@ -9,6 +9,7 @@ import FinanseLineChart from '../components/FinanseLineChart.vue'
 import dayjs from 'dayjs'
 import MonthlyOverview from '@/components/transactionReview/MonthlyOverview.vue'
 import ExpenseCategoriesPieChart from '@/components/transactionReview/ExpenseCategoriesPieChart.vue'
+import RecentTransactions from '@/components/transactionReview/RecentTransactions.vue'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
@@ -92,8 +93,9 @@ const biggestExpense = computed(() => {
         <div class="border-t"></div>
         <MonthlyOverview />
       </div>
-      <div class="flex flex-col gap-6">
+      <div class="flex flex-col gap-6 md:border-l-1 md:pl-6">
         <ExpenseCategoriesPieChart />
+        <RecentTransactions />
       </div>
     </div>
   </div>

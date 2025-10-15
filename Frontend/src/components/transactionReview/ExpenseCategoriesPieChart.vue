@@ -63,7 +63,7 @@ const chartOptions: ChartOptions<'doughnut'> = {
 }
 </script>
 <template>
-  <div class="p-4 bg-white md:border-l-1 ">
+  <div class="p-4 bg-white ">
     <h2 class="text-lg font-semibold text-gray-800 mb-3">Kategorie wydatków</h2>
     <Doughnut :data="chartData" :options="chartOptions" />
   </div>
