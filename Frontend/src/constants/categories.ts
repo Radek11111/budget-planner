@@ -1,3 +1,15 @@
+import {
+  Home,
+  CreditCard,
+  Utensils,
+  Bus,
+  Tv,
+  HeartPulse,
+  ShoppingCart,
+  Gamepad2,
+  Circle,
+} from 'lucide-vue-next'
+
 export const earningCategories = [
   'Wynagrodzenie',
   'Własna działalność',
@@ -27,3 +39,21 @@ export const savingCategories = [
   'Zakup domu',
   'Inne',
 ] as const
+
+export type ExpenseCategory = (typeof expenseCategories)[number]
+
+export const categoryStyles: Record<
+  (typeof expenseCategories)[number],
+  { color: string; icon: any }
+> = {
+  Mieszkanie: { color: 'bg-blue-100 text-blue-600', icon: Home },
+  Rachunki: { color: 'bg-yellow-100 text-yellow-600', icon: CreditCard },
+  Kredyty: { color: 'bg-orange-100 text-orange-600', icon: CreditCard },
+  Żywność: { color: 'bg-green-100 text-green-600', icon: Utensils },
+  Transport: { color: 'bg-sky-100 text-sky-600', icon: Bus },
+  Media: { color: 'bg-purple-100 text-purple-600', icon: Tv },
+  Rozrywka: { color: 'bg-pink-100 text-pink-600', icon: Gamepad2 },
+  'Opieka zdrowotna': { color: 'bg-red-100 text-red-600', icon: HeartPulse },
+  Zakupy: { color: 'bg-teal-100 text-teal-600', icon: ShoppingCart },
+  Inne: { color: 'bg-gray-100 text-gray-500', icon: Circle },
+}
