@@ -8,6 +8,8 @@ import router from './router'
 import VueSweetalert2 from 'vue-sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import { MotionPlugin } from '@vueuse/motion'
+import dayjs from 'dayjs'
+import 'dayjs/locale/pl'
 import {
   FaPiggyBank,
   FaShoppingCart,
@@ -46,7 +48,7 @@ addIcons(
 )
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
-
+dayjs().locale('pl')
 const app = createApp(App)
 app.use(clerkPlugin, {
   publishableKey: clerkPubKey,

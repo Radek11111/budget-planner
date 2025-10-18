@@ -7,6 +7,8 @@ import { categoryStyles, type ExpenseCategory } from '../../constants/categories
 
 const expenseStore = useExpenseStore()
 
+const daysPL = (date?: string | Date) => dayjs(date).locale('pl').format('DD MMM YYYY')
+
 const recentTransactions = computed(() => {
   return [...expenseStore.yearlyExpenses]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -41,7 +43,7 @@ function getCategoryStyle(category: string) {
                 {{ transaction.category }}
               </p>
               <p class="text-xs text-gray-400">
-                {{ dayjs(transaction.date).format('DD MMM YYYY') }}
+                {{ daysPL(transaction.date) }}
               </p>
             </div>
           </div>
