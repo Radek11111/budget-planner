@@ -94,7 +94,9 @@ const biggestExpense = computed(() => {
         <MonthlyOverview />
       </div>
       <div class="flex flex-col gap-6 md:border-l-1 md:pl-6">
-        <ExpenseCategoriesPieChart />
+        
+          <ExpenseCategoriesPieChart />
+        
         <RecentTransactions />
       </div>
     </div>

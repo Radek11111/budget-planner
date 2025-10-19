@@ -63,8 +63,12 @@ const chartOptions: ChartOptions<'doughnut'> = {
 }
 </script>
 <template>
-  <div class="p-4 bg-white ">
-    <h2 class="text-lg font-semibold text-gray-800 mb-3">Kategorie wydatków</h2>
-    <Doughnut :data="chartData" :options="chartOptions" />
+<div class="p-4 bg-white grid grid-rows-[auto_1fr]">
+  <h2 class="text-lg font-semibold text-gray-800 mb-3 self-start">Kategorie wydatków</h2>
+  <div class="grid place-items-center">
+    <div class="w-full aspect-square max-w-md">
+      <Doughnut :data="chartData" :options="chartOptions" />
+    </div>
   </div>
+</div>
 </template>
