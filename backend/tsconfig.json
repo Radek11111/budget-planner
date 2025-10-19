@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "types": ["node"],
+    "baseUrl": "./",
+    "paths": { "*": ["src/*"] },
     "outDir": "dist",
     "rootDir": "src",
 
@@ -14,11 +16,7 @@
 
     "strict": true,
 
-    "skipLibCheck": true,
-
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "skipLibCheck": true
   },
   "include": ["src", "src/types"]
 }
