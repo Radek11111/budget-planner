@@ -27,6 +27,7 @@ import {
   BiFileArrowDownFill,
   IoWallet,
   MdLocalgrocerystoreRound,
+  MdAddaphotoTwotone,
 } from 'oh-vue-icons/icons'
 addIcons(
   IoWalletOutline,
@@ -45,6 +46,7 @@ addIcons(
   BiFileArrowUpFill,
   IoWallet,
   MdLocalgrocerystoreRound,
+  MdAddaphotoTwotone,
 )
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY

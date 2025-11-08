@@ -11,7 +11,7 @@ export const useExpenseStore = defineStore('expense', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  const { getExpenses, addExpense, deleteExpense } = useExpenses()
+  const { getExpenses, addExpense, deleteExpense, } = useExpenses()
 
   const fetchMonthlyExpenses = async (year?: number, month?: number) => {
     isLoading.value = true
@@ -61,6 +61,8 @@ export const useExpenseStore = defineStore('expense', () => {
       console.error(err)
     }
   }
+
+  
   const removeExpense = async (expenseId: string) => {
     try {
       await deleteExpense(expenseId)
@@ -80,5 +82,6 @@ export const useExpenseStore = defineStore('expense', () => {
     fetchYearlyExpenses,
     addNewExpense,
     removeExpense,
+    
   }
 })

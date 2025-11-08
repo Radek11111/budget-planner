@@ -11,6 +11,7 @@ import { deleteExpense } from "./expense/deleteExpense";
 import { deleteSaving } from "./saving/deleteSaving";
 import { deleteIncome } from "./income/deleteIncome";
 
+
 export default async function budgetRoutes(server: FastifyInstance) {
   server.register(addIncome);
   server.register(addExpense);
@@ -23,4 +24,5 @@ export default async function budgetRoutes(server: FastifyInstance) {
   server.register(deleteExpense);
   server.register(deleteSaving);
   server.register(deleteIncome);
+
 }

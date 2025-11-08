@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "types": ["node"],
-    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "baseUrl": "./",
     "paths": { "*": ["src/*"] },
     "outDir": "dist",
     "rootDir": "src",
