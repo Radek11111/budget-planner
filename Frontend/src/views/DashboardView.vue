@@ -8,7 +8,7 @@ import { useExpenseStore } from '@/stores/expenseStore'
 import { useSavingStore } from '@/stores/savingStore'
 import Swal from 'sweetalert2'
 import { useTotalAmount } from '@/composabes/useTotalAmount'
-import { useSpendingWarning } from '@/composabes/useSprendingWarning'
+import { useSprending } from '../composabes/useSprending'
 import FinancePieChart from '@/components/FinancePieChart.vue'
 import dayjs from 'dayjs'
 
@@ -16,6 +16,7 @@ const isLoading = ref(false)
 const incomeStore = useIncomeStore()
 const expenseStore = useExpenseStore()
 const savingStore = useSavingStore()
+const { useSpendingWarning } = useSprending()
 
 onMounted(async () => {
   const currentYear = dayjs().year()

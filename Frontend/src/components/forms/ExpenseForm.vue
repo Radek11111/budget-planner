@@ -5,11 +5,16 @@ import { expenseCategories } from '@/constants/categories'
 import Swal from 'sweetalert2'
 import { useExpenseStore } from '../../stores/expenseStore'
 import ReceiptUploader from '../ReceiptUploader.vue'
+import { useOcrParser } from '@/composabes/useOcrParser'
+import { formatDate } from '../../utils/dateFormatter'
+import { useSprending } from '@/composabes/useSprending'
 
 const date = ref('')
 const amount = ref<number | null>(null)
 const description = ref('')
 const category = ref('')
+const { handleOcrParsed } = useOcrParser()
+const { useSprendingDelete, showSuccess, showError } = useSprending()
 
 const store = useExpenseStore()
 onMounted(() => {
@@ -39,50 +44,16 @@ const handleSubmit = async () => {
   }
 }
 const handleDelete = async (id: string) => {
-  const result = await Swal.fire({
-    title: 'Czy na pewno chcesz usunąć ten wydatek?',
-    text: 'Ta operacja jest nieodwracalna.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#e3342f',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Tak, usuń',
-    cancelButtonText: 'Anuluj',
-  })
+  const result = await useSprendingDelete()
   if (result.isConfirmed) {
   }
   try {
     await store.removeExpense(id)
-    Swal.fire({
-      title: 'Usunięto wydatek',
-      text: 'Wydatek został pomyślnie usunięty.',
-      icon: 'success',
-      timer: 1500,
-      showConfirmButton: false,
-    })
+    showSuccess()
   } catch (e) {
-    Swal.fire('Błąd', 'Wystąpił błąd podczas usuwania wydatku. Spróbuj ponownie później.', 'error')
+    showError()
     console.error('Błąd przy usuwaniu wydatku', e)
   }
-}
-
-const formatDate = (dateStr: string | Date) =>
-  new Date(dateStr).toLocaleDateString('pl-PL', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  })
-
-const handleOcrParsed = (data: {
-  date: string
-  amount: number
-  description: string
-  category: string
-}) => {
-  if (data.amount) amount.value = data.amount
-  if (data.date) date.value = data.date
-  if (data.description) description.value = data.description
-  if (data.category) category.value = data.category
 }
 </script>
 <template>
@@ -90,7 +61,7 @@ const handleOcrParsed = (data: {
     <h2 class="tex-xl font-semibold text-gray-800 mb-6">Dodaj Wydatki</h2>
 
     <div class="flex items-center gap-4 mb-6">
-      <ReceiptUploader :onParsed="handleOcrParsed" />
+      <ReceiptUploader @Parsed="handleOcrParsed" />
       <span class="text-gray-600">Lub wprowadź ręcznie</span>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -158,7 +129,6 @@ const handleOcrParsed = (data: {
       >
         <v-icon name="px-plus" scale="1" animation="pulse" hover />
       </button>
-     
     </div>
   </form>
   <!-- Recent Expenses -->
