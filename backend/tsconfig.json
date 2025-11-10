@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
     "types": ["node"],
-    "baseUrl": "./",
-    "paths": { "*": ["src/*"] },
     "outDir": "dist",
     "rootDir": "src",
 
@@ -10,6 +8,7 @@
     "typeRoots": ["./src/types", "./node_modules/@types"],
 
     "module": "commonjs",
+    "moduleResolution": "bundler",
 
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
