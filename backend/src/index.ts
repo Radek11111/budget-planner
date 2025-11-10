@@ -6,6 +6,7 @@ import "fastify";
 
 import sensible from "@fastify/sensible";
 import adminRoutes from "./routes/admin";
+import fastifyMultipart from "@fastify/multipart";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -32,6 +33,7 @@ server.register(cors, {
 });
 server.register(budgetRoutes, { prefix: "/budget" });
 server.register(adminRoutes, { prefix: "/admin" });
+server.register(fastifyMultipart);
 
 server.get("/", async () => {
   return { status: "OK" };

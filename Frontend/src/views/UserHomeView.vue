@@ -6,6 +6,10 @@ import { useSavingStore } from '@/stores/savingStore'
 import { computed, onMounted, ref } from 'vue'
 import Swal from 'sweetalert2'
 import FinanseLineChart from '../components/FinanseLineChart.vue'
+import dayjs from 'dayjs'
+import MonthlyOverview from '@/components/transactionReview/MonthlyOverview.vue'
+import ExpenseCategoriesPieChart from '@/components/transactionReview/ExpenseCategoriesPieChart.vue'
+import RecentTransactions from '@/components/transactionReview/RecentTransactions.vue'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
@@ -15,10 +19,11 @@ const savingStore = useSavingStore()
 onMounted(async () => {
   try {
     isLoading.value = true
+    const currentYear = dayjs().year()
     await Promise.all([
-      incomeStore.fetchIncomes(),
-      expenseStore.fetchExpenses(),
-      savingStore.fetchSavings(),
+      incomeStore.fetchYearlyIncomes(currentYear),
+      expenseStore.fetchYearlyExpenses(currentYear),
+      savingStore.fetchYearlySavings(currentYear),
     ])
   } catch (error) {
     console.error('Error fetching data:', error)
@@ -32,16 +37,12 @@ onMounted(async () => {
   }
 })
 // Cart calculations
-const totalIncome = useTotalAmount(computed(() => incomeStore.incomes))
-const totalExpense = useTotalAmount(computed(() => expenseStore.expenses))
-const totalSaving = useTotalAmount(computed(() => savingStore.savings))
+const totalIncome = useTotalAmount(computed(() => incomeStore.yearlyIncomes))
+const totalExpense = useTotalAmount(computed(() => expenseStore.yearlyExpenses))
+const totalSaving = useTotalAmount(computed(() => savingStore.yearlySavings))
 const biggestExpense = computed(() => {
-  return expenseStore.expenses.reduce((max, expense) => Math.max(max, expense.amount), 0)
+  return expenseStore.yearlyExpenses.reduce((max, expense) => Math.max(max, expense.amount), 0)
 })
-//  Calendary logic
-const currentMonth = ref<{month: string; value: number}[]>([]) 
-
-
 </script>
 
 <template>
@@ -83,9 +84,20 @@ const currentMonth = ref<{month: string; value: number}[]>([])
       <h3 class="text-lg font-semibold mb-4">Trendy wydatków</h3>
       <FinanseLineChart />
     </div>
-    <div class="">
+    <div class="bg-white p-4 rounded-xl shadow grid grid-cols-1 gap-6 md:grid-cols-2">
       <div class="">
-        <h3></h3>
+        <div class="border-gray-200 pb-2 mb-2">
+          <h3 class="text-lg font-semibold text-gray-800">Przegląd miesięczny</h3>
+          <p class="text-sm text-gray-500 mt-1">Wybierz miesiąc, aby zobaczyć statystyki</p>
+        </div>
+        <div class="border-t"></div>
+        <MonthlyOverview />
+      </div>
+      <div class="flex flex-col gap-6 md:border-l-1 md:pl-6">
+        
+          <ExpenseCategoriesPieChart />
+        
+        <RecentTransactions />
       </div>
     </div>
   </div>

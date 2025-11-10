@@ -1,6 +1,69 @@
+<script setup lang="ts">
+import type { Expense } from '@/types'
+import { onMounted, ref } from 'vue'
+import { expenseCategories } from '@/constants/categories'
+import Swal from 'sweetalert2'
+import { useExpenseStore } from '../../stores/expenseStore'
+import ReceiptUploader from '../ReceiptUploader.vue'
+import { useOcrParser } from '@/composabes/useOcrParser'
+import { formatDate } from '../../utils/dateFormatter'
+import { useSprending } from '@/composabes/useSprending'
+
+const date = ref('')
+const amount = ref<number | null>(null)
+const description = ref('')
+const category = ref('')
+const { handleOcrParsed } = useOcrParser()
+const { useSprendingDelete, showSuccess, showError } = useSprending()
+
+const store = useExpenseStore()
+onMounted(() => {
+  store.fetchMonthlyExpenses()
+})
+
+const handleSubmit = async () => {
+  if (!date.value || amount.value === null || !description.value || !category.value) return
+  const newExpense: Expense = {
+    id: '',
+    date: new Date(date.value).toISOString(),
+    amount: amount.value,
+    description: description.value,
+    category: category.value,
+  }
+  try {
+    await store.addNewExpense(newExpense)
+
+    // Reset
+    date.value = ''
+    amount.value = 0
+    description.value = ''
+    category.value = ''
+  } catch (e) {
+    console.error('Błąd podczas dodawania wydatku:', e)
+    alert('Wystąpił błąd podczas dodawania wydatku. Spróbuj ponownie.')
+  }
+}
+const handleDelete = async (id: string) => {
+  const result = await useSprendingDelete()
+  if (result.isConfirmed) {
+  }
+  try {
+    await store.removeExpense(id)
+    showSuccess()
+  } catch (e) {
+    showError()
+    console.error('Błąd przy usuwaniu wydatku', e)
+  }
+}
+</script>
 <template>
   <form class="mb-8" @submit.prevent="handleSubmit">
     <h2 class="tex-xl font-semibold text-gray-800 mb-6">Dodaj Wydatki</h2>
+
+    <div class="flex items-center gap-4 mb-6">
+      <ReceiptUploader @Parsed="handleOcrParsed" />
+      <span class="text-gray-600">Lub wprowadź ręcznie</span>
+    </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <div class="">
         <label for="expenseDate" class="block text-gray-700 mb-2">Data</label>
@@ -59,12 +122,14 @@
         />
       </div>
     </div>
-    <button
-      type="submit"
-      class="bg-[#FFB347] text-white py-2 px-6 rounded-lg hover:bg-[#FFA533] transition-colors cursor-pointer whitespace-nowrap !rounded-button"
-    >
-      <v-icon name="px-plus" scale="1.5" animation="pulse" hover />
-    </button>
+    <div class="flex items-center gap-4 mb-6">
+      <button
+        type="submit"
+        class="bg-[#FFB347] text-white py-2 px-6 rounded-lg hover:bg-[#FFA533] transition-colors cursor-pointer whitespace-nowrap !rounded-button"
+      >
+        <v-icon name="px-plus" scale="1" animation="pulse" hover />
+      </button>
+    </div>
   </form>
   <!-- Recent Expenses -->
   <h3 class="text-lg font-semibold text-gray-800 mb-4">Ostatnie wydatki</h3>
@@ -82,7 +147,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="expense in store.expenses" :key="expense.id" class="border-b border-gray-200">
+        <tr
+          v-for="expense in store.monthlyExpenses"
+          :key="expense.id"
+          class="border-b border-gray-200"
+        >
           <td class="py-3 px-4 whitespace-nowrap">
             {{ formatDate(expense.date) }}
           </td>
@@ -103,7 +172,7 @@
             />
           </td>
         </tr>
-        <tr v-if="store.expenses?.length === 0">
+        <tr v-if="store.monthlyExpenses?.length === 0">
           <td colspan="4" class="py-4 text-center text-gray-500">
             Nie odnotowano jeszcze żadnych wydatków.
           </td>
@@ -112,77 +181,3 @@
     </table>
   </div>
 </template>
-<script setup lang="ts">
-import type { Expense } from '@/types'
-import { onMounted, ref } from 'vue'
-import { expenseCategories } from '@/constants/categories'
-import Swal from 'sweetalert2'
-import { useExpenseStore } from '../../stores/expenseStore'
-
-const date = ref('')
-const amount = ref<number | null>(null)
-const description = ref('')
-const category = ref('')
-
-const store = useExpenseStore()
-onMounted(() => {
-  store.fetchExpenses()
-})
-
-const handleSubmit = async () => {
-  if (!date.value || amount.value === null || !description.value || !category.value) return
-  const newExpense: Expense = {
-    id: '',
-    date: new Date(date.value).toISOString(),
-    amount: amount.value,
-    description: description.value,
-    category: category.value,
-  }
-  try {
-    await store.addNewExpense(newExpense)
-
-    // Reset
-    date.value = ''
-    amount.value = 0
-    description.value = ''
-    category.value = ''
-  } catch (e) {
-    console.error('Błąd podczas dodawania wydatku:', e)
-    alert('Wystąpił błąd podczas dodawania wydatku. Spróbuj ponownie.')
-  }
-}
-const handleDelete = async (id: string) => {
-  const result = await Swal.fire({
-    title: 'Czy na pewno chcesz usunąć ten wydatek?',
-    text: 'Ta operacja jest nieodwracalna.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#e3342f',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Tak, usuń',
-    cancelButtonText: 'Anuluj',
-  })
-  if (result.isConfirmed) {
-  }
-  try {
-    await store.removeExpense(id)
-    Swal.fire({
-      title: 'Usunięto wydatek',
-      text: 'Wydatek został pomyślnie usunięty.',
-      icon: 'success',
-      timer: 1500,
-      showConfirmButton: false,
-    })
-  } catch (e) {
-    Swal.fire('Błąd', 'Wystąpił błąd podczas usuwania wydatku. Spróbuj ponownie później.', 'error')
-    console.error('Błąd przy usuwaniu wydatku', e)
-  }
-}
-
-const formatDate = (dateStr: string | Date) =>
-  new Date(dateStr).toLocaleDateString('pl-PL', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  })
-</script>

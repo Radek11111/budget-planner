@@ -15,6 +15,7 @@ export async function getIncome(server: FastifyInstance) {
             const { year, month } = request.query as {
               year?: string;
               month?: string;
+              
             };
 
             let dataFilter = {};
