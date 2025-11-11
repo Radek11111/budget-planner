@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { categoryOCRMap } from '@/constants/categories'
 import { ref } from 'vue'
 const emit = defineEmits<{
   (
@@ -125,13 +126,13 @@ const parseReceiptText = (text: string) => {
   const amountRegex =
     /(?:PLN|zł|zl|price|kwota|suma)[:\s]*([\d\s]+[.,]\d{2})|([\d\s]+[.,]\d{2})\s*(?:PLN|zł)/i
   const dateRegex = /(\d{4})[-./](\d{1,2})[-./](\d{1,2})|(\d{1,2})[-./](\d{1,2})[-./](\d{4})/
-  const storeRegex = /(Biedronka|Lidl|Żabka|Carrefour|Auchan|Netto|Lewiatan|Kaufland|Tesco|Aldi)/i
-  const categoryRegex = /(Zakupy|Żywność|Transport|Rachunki|Inne)/i
+  const storeRegex =
+    /(Biedronka|Lidl|Żabka|Carrefour|Auchan|Netto|Lewiatan|Kaufland|Tesco|Aldi|BP|Shell|Orlen|Poczta|Poczta Polska|InPost|DHL|UPS)/i
 
   const amountMatch = text.match(amountRegex)
   const dateMatch = text.match(dateRegex)
   const descriptionMatch = text.match(storeRegex)
-  const categoryMatch = text.match(categoryRegex)
+  const categoryMatch = categoryOCRMap
 
   const amount = amountMatch ? amountMatch[1].replace(',', '.') : ''
   let date = ''
@@ -143,7 +144,11 @@ const parseReceiptText = (text: string) => {
     }
   }
   const description = descriptionMatch ? descriptionMatch[1] : ''
-  const category = categoryMatch ? categoryMatch[1] : ''
+  let category = 'Inne'
+  if (descriptionMatch) {
+    const storeName = descriptionMatch[1].toLowerCase().trim()
+    category = categoryMatch[storeName] || 'Inne'
+  }
 
   console.log('Sparsowane dane:', { amount, date, description, category })
   emit('parsed', { amount, date, description, category: category || 'Inne' })
