@@ -2,18 +2,13 @@
 import type { Expense } from '@/types'
 import { onMounted, ref } from 'vue'
 import { expenseCategories } from '@/constants/categories'
-import Swal from 'sweetalert2'
 import { useExpenseStore } from '../../stores/expenseStore'
 import ReceiptUploader from '../ReceiptUploader.vue'
 import { useOcrParser } from '@/composabes/useOcrParser'
 import { formatDate } from '../../utils/dateFormatter'
 import { useSprending } from '@/composabes/useSprending'
 
-const date = ref('')
-const amount = ref<number | null>(null)
-const description = ref('')
-const category = ref('')
-const { handleOcrParsed } = useOcrParser()
+const { date, amount, description, category, handleOcrParsed } = useOcrParser()
 const { useSprendingDelete, showSuccess, showError } = useSprending()
 
 const store = useExpenseStore()
