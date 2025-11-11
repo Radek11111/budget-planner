@@ -146,12 +146,13 @@ const parseReceiptText = (text: string) => {
   const description = descriptionMatch ? descriptionMatch[1] : ''
   let category = 'Inne'
   if (descriptionMatch) {
-    const storeName = descriptionMatch[1].toLowerCase().trim()
-    category = categoryMatch[storeName] || 'Inne'
+    const storeName = descriptionMatch[1]
+    const normalizedStoreName = storeName.charAt(0).toUpperCase() + storeName.slice(1).toLowerCase()
+    category = categoryMatch[normalizedStoreName] || 'Inne'
   }
 
   console.log('Sparsowane dane:', { amount, date, description, category })
-  emit('parsed', { amount, date, description, category: category || 'Inne' })
+  emit('parsed', { amount, date, description, category: category })
 }
 </script>
 
