@@ -17,3 +17,14 @@ export interface Expense extends TransactionBase {
 export interface Saving extends TransactionBase {
   type?: 'saving'
 }
+
+export interface SavingGoal {
+  id: string
+  name: string
+  targetAmount: number
+  currentAmount: number
+  deadline: Date
+  createdAt: Date
+  updatedAt: Date
+  budgetId: string
+}

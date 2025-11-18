@@ -9,6 +9,22 @@ export async function deleteSavingGoal(server: FastifyInstance) {
     async (request, reply) => {
       const { id } = request.params as { id: string };
       try {
+        if (!request.user) {
+          return reply.status(401).send({ error: "Unauthorized" });
+        }
+
+        
+        const existingGoal = await db.savingGoal.findFirst({
+          where: {
+            id: id,
+            budget: { userId: request.user.id },
+          },
+        });
+
+        if (!existingGoal) {
+          return reply.status(404).send({ error: "Saving goal not found" });
+        }
+
         await db.savingGoal.delete({
           where: { id: id },
         });

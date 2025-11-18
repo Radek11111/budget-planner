@@ -10,7 +10,9 @@ import { getSaving } from "./saving/getSaving";
 import { deleteExpense } from "./expense/deleteExpense";
 import { deleteSaving } from "./saving/deleteSaving";
 import { deleteIncome } from "./income/deleteIncome";
-
+import { addSavingGoal } from "./savingGoal/addSavingGoal";
+import { editSavingGoal } from "./savingGoal/editSavingGoal";
+import { deleteSavingGoal } from "./savingGoal/deteteSavingGoal";
 
 export default async function budgetRoutes(server: FastifyInstance) {
   server.register(addIncome);
@@ -24,5 +26,7 @@ export default async function budgetRoutes(server: FastifyInstance) {
   server.register(deleteExpense);
   server.register(deleteSaving);
   server.register(deleteIncome);
-
+  server.register(addSavingGoal);
+  server.register(editSavingGoal);
+  server.register(deleteSavingGoal);
 }
