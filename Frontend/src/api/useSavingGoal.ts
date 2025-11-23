@@ -5,13 +5,14 @@ import type { SavingGoal } from '@/types'
 export const useSavingGoal = () => {
   const api = createApiClerkClient()
   return {
-    getSavingGoal: async (params?: {}): Promise<AxiosResponse<SavingGoal[]>> => {
+    getSavingGoal: async (params?: {}): Promise<SavingGoal[]> => {
       const res = await api.get('budget/saving-goal', { params })
-      return res
+      return res.data
     },
-    addSavingGoal: (data: SavingGoal) => api.post('/budget/saving-goal', data),
+    addSavingGoal: (data: Omit<SavingGoal, 'id' | 'createdAt' | 'updatedAt' | 'budgetId'>) =>
+      api.post('/budget/saving-goal', data),
     deleteSavingGoal: (id: string) => api.delete(`budget/saving-goal/${id}`),
-    updateSavingGoal: (id: string, data: SavingGoal) =>
+    updateSavingGoal: (id: string, data: Partial<SavingGoal>) =>
       api.patch(`/budget/saving-goal/${id}`, data),
   }
 }

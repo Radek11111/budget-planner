@@ -23,8 +23,8 @@ export interface SavingGoal {
   name: string
   targetAmount: number
   currentAmount: number
-  deadline: Date
-  createdAt: Date
-  updatedAt: Date
+  deadline: string
+  createdAt: string
+  updatedAt: string
   budgetId: string
 }
