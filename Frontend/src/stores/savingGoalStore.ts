@@ -10,6 +10,8 @@ export const useSavingGoalStore = defineStore('saving-goal', () => {
 
   const { getSavingGoal, addSavingGoal, deleteSavingGoal, updateSavingGoal } = useSavingGoal()
 
+
+
   const sortedGoals = computed(() => {
     return [...savingGoal.value].sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
