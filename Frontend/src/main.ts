@@ -28,6 +28,7 @@ import {
   IoWallet,
   MdLocalgrocerystoreRound,
   MdAddaphotoTwotone,
+  IoCalculator,
 } from 'oh-vue-icons/icons'
 addIcons(
   IoWalletOutline,
@@ -47,6 +48,7 @@ addIcons(
   IoWallet,
   MdLocalgrocerystoreRound,
   MdAddaphotoTwotone,
+  IoCalculator,
 )
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
