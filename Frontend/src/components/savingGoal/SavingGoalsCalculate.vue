@@ -1,21 +1,31 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import Swal from 'sweetalert2'
-import { Button } from './ui/button'
-import Card from './ui/card/Card.vue'
-import CardContent from './ui/card/CardContent.vue'
-
+import Card from '../ui/card/Card.vue'
+import CardContent from '../ui/card/CardContent.vue'
 import { useSavingGoalStore } from '@/stores/savingGoalStore'
+import { Button } from '../ui/button'
+import type { SavingGoal } from '@/types'
+
 const store = useSavingGoalStore()
 
-// Form state
 const targetAmount = ref(0)
 const deadline = ref('')
 const currentAmount = ref(0)
 const showResults = ref(false)
 const goalName = ref('')
 
-// Computed results
+const mockGoal = computed<SavingGoal>(() => ({
+  id: '',
+  name: goalName.value,
+  targetAmount: targetAmount.value,
+  currentAmount: currentAmount.value,
+  deadline: deadline.value,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  budgetId: '',
+}))
+
 const remainingAmount = computed(() => {
   return Math.max(0, (targetAmount.value ?? 0) - (currentAmount.value ?? 0))
 })
@@ -47,13 +57,16 @@ const monthsRemaining = computed(() => {
 })
 
 const monthlyAmount = computed(() => {
-  if (monthsRemaining.value === 0) return remainingAmount.value
-  return Math.ceil(remainingAmount.value / monthsRemaining.value)
+  if (!deadline.value || targetAmount.value <= 0) return 0
+  const amount = store.calculateMonthlyAmount(mockGoal.value)
+  
+  return Math.ceil(amount > 0 ? amount : 0)
 })
 
 const dailyAmount = computed(() => {
-  if (daysRemaining.value === 0) return remainingAmount.value
-  return Math.ceil(remainingAmount.value / daysRemaining.value)
+  if (!deadline.value || targetAmount.value <= 0) return 0
+  const amount = store.calculateDailyAmount(mockGoal.value)
+  return Math.ceil(amount > 0 ? amount : 0)
 })
 
 const progressPercentage = computed(() => {
@@ -207,7 +220,7 @@ const saveAsGoal = async () => {
 
               <div class="p-4 bg-white rounded-lg">
                 <p class="text-xs text-gray-500">Dziennie</p>
-                <p class="text-xl font-bold text-orange-dark">{{ dailyAmount }} zł</p>
+                <p class="text-xl font-bold text-orange-dark">{{ dailyAmount.toFixed(2) }} zł</p>
               </div>
 
               <div class="p-4 bg-white rounded-lg col-span-2">

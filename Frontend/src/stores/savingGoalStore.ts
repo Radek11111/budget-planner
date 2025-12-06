@@ -10,7 +10,44 @@ export const useSavingGoalStore = defineStore('saving-goal', () => {
 
   const { getSavingGoal, addSavingGoal, deleteSavingGoal, updateSavingGoal } = useSavingGoal()
 
+  const calculateMonthlyAmount = (goal: SavingGoal) => {
+    if (!goal.deadline || goal.currentAmount >= goal.targetAmount) return 0
 
+    const now = new Date()
+    const deadline = new Date(goal.deadline)
+    const remaining = goal.targetAmount - goal.currentAmount
+
+    let monthsDiff = (deadline.getFullYear() - now.getFullYear()) * 12
+    monthsDiff += deadline.getMonth() - now.getMonth()
+
+    if (deadline.getDate() < now.getDate()) {
+      monthsDiff--
+    }
+
+    if (monthsDiff <= 0) return remaining
+
+    const remainingDays = Math.max(
+      0,
+      Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
+    )
+    const exactMonths = remainingDays / 30.44
+    return remaining / Math.max(1, exactMonths)
+  }
+
+  const calculateDailyAmount = (goal: SavingGoal) => {
+    if (!goal.deadline || goal.currentAmount >= goal.targetAmount) return 0
+
+    const now = new Date()
+    const deadline = new Date(goal.deadline)
+    const remaining = goal.targetAmount - goal.currentAmount
+
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const targetDate = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate())
+
+    const daysDiff = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+    if (daysDiff <= 0) return remaining
+    return remaining / daysDiff
+  }
 
   const sortedGoals = computed(() => {
     return [...savingGoal.value].sort(
@@ -144,5 +181,7 @@ export const useSavingGoalStore = defineStore('saving-goal', () => {
     addAmountToGoal,
     getGoalById,
     clearError,
+    calculateMonthlyAmount,
+    calculateDailyAmount,
   }
 })

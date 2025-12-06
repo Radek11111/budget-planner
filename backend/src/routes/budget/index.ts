@@ -14,6 +14,7 @@ import { addSavingGoal } from "./savingGoal/addSavingGoal";
 import { editSavingGoal } from "./savingGoal/editSavingGoal";
 import { deleteSavingGoal } from "./savingGoal/deteteSavingGoal";
 import { getSavingGoal } from "./savingGoal/getSavingGoal";
+import { addAmountToGoal } from "./savingGoal/addAmountToGoal";
 
 export default async function budgetRoutes(server: FastifyInstance) {
   server.register(addIncome);
@@ -31,4 +32,5 @@ export default async function budgetRoutes(server: FastifyInstance) {
   server.register(editSavingGoal);
   server.register(deleteSavingGoal);
   server.register(getSavingGoal);
+  server.register(addAmountToGoal);
 }

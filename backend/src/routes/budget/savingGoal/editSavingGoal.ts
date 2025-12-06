@@ -35,6 +35,9 @@ export function editSavingGoal(server: FastifyInstance) {
         const updatedGoal = await db.savingGoal.update({
           where: { id: request.params.id },
           data: { ...request.body },
+          include: {
+            savings: true,
+          },
         });
         return reply.status(200).send(updatedGoal);
       } catch (error) {

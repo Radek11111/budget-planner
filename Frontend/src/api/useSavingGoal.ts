@@ -1,4 +1,3 @@
-import type { AxiosResponse } from 'axios'
 import { createApiClerkClient } from './apiClerkClient'
 import type { SavingGoal } from '@/types'
 
@@ -14,5 +13,7 @@ export const useSavingGoal = () => {
     deleteSavingGoal: (id: string) => api.delete(`budget/saving-goal/${id}`),
     updateSavingGoal: (id: string, data: Partial<SavingGoal>) =>
       api.patch(`/budget/saving-goal/${id}`, data),
+    addAmountToGoal: (id: string, amount: number) =>
+      api.patch(`/budget/saving-goal/${id}/add-amount`, { amount }),
   }
 }

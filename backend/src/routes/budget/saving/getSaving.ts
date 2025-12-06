@@ -44,6 +44,7 @@ export async function getSaving(server: FastifyInstance) {
           orderBy: { date: "desc" },
           include: {
             budget: true,
+            savingGoal: true,
           },
         });
         return reply.status(200).send(savings);

@@ -36,6 +36,9 @@ export async function addSavingGoal(server: FastifyInstance) {
             },
           },
         },
+        include: {
+          savings: true,
+        },
       });
       return reply.status(201).send(goal);
     }

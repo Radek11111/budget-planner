@@ -13,6 +13,12 @@ export async function getSavingGoal(server: FastifyInstance) {
         }
         const goals = await db.savingGoal.findMany({
           where: { budget: { userId: request.user.id } },
+          include: {
+            savings: {
+              orderBy: { date: "desc" },
+              take: 5,
+            },
+          },
           orderBy: { createdAt: "desc" },
         });
         return reply.status(200).send(goals);

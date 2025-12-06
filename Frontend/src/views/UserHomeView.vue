@@ -10,8 +10,7 @@ import dayjs from 'dayjs'
 import MonthlyOverview from '@/components/transactionReview/MonthlyOverview.vue'
 import ExpenseCategoriesPieChart from '@/components/transactionReview/ExpenseCategoriesPieChart.vue'
 import RecentTransactions from '@/components/transactionReview/RecentTransactions.vue'
-import SavingGoalsCalculate from '@/components/SavingGoalsCalculate.vue'
-import SavingGoalsCard from '@/components/SavingGoalsCard.vue'
+import SavingGoalsCalculate from '@/components//savingGoal/SavingGoalsCalculate.vue'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
