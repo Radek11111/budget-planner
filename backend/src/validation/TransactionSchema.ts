@@ -5,6 +5,5 @@ const TransactionSchema = z.object({
   category: z.string().min(1),
   description: z.string(),
   amount: z.number().positive(),
-  savingGoalId: z.string().optional(),
 });
 export default TransactionSchema;

@@ -59,7 +59,7 @@ model Saving {
   amount      Float
   budget Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
   budgetId    String
-  savingGoal SavingGoal? @relation(fields: [savingGoalId], references: [id], onDelete: Cascade)
+  savingGoal SavingGoal? @relation(fields: [savingGoalId], references: [id], onDelete: SetNull)
   savingGoalId String?
 }
 

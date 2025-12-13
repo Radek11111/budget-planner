@@ -11,6 +11,7 @@ import MonthlyOverview from '@/components/transactionReview/MonthlyOverview.vue'
 import ExpenseCategoriesPieChart from '@/components/transactionReview/ExpenseCategoriesPieChart.vue'
 import RecentTransactions from '@/components/transactionReview/RecentTransactions.vue'
 import SavingGoalsCalculate from '@/components//savingGoal/SavingGoalsCalculate.vue'
+import SavingGoalsList from '@/components/savingGoal/SavingGoalsList.vue'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
@@ -99,6 +100,10 @@ const biggestExpense = computed(() => {
 
         <RecentTransactions />
       </div>
+    </div>
+    <div class="">
+
+      <SavingGoalsList />
     </div>
 
     <SavingGoalsCalculate />

@@ -16,8 +16,8 @@ export interface Expense extends TransactionBase {
 
 export interface Saving extends TransactionBase {
   type?: 'saving'
-  savingGoalId?: string
-  savingGoal?: SavingGoal
+  savingGoalId?: string | null
+  savingGoal?: SavingGoal | null
 }
 
 export interface SavingGoal {
@@ -29,5 +29,5 @@ export interface SavingGoal {
   createdAt: string
   updatedAt: string
   budgetId: string
-  savings?: Saving[]
+ 
 }

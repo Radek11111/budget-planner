@@ -15,32 +15,38 @@ export async function addSavingGoal(server: FastifyInstance) {
     async (request, reply) => {
       if (!request.user)
         return reply.status(401).send({ error: "Unauthorized" });
-      const userId = request.user.id;
 
-      const goal = await db.savingGoal.create({
-        data: {
-          ...request.body,
-          budget: {
-            connectOrCreate: {
-              where: {
-                userId_name: {
-                  userId: userId,
-                  name: "Default Budget",
+      const { name, targetAmount, currentAmount = 0, deadline } = request.body;
+
+      try {
+        const savingGoal = await db.savingGoal.create({
+          data: {
+            name,
+            targetAmount,
+            currentAmount,
+            deadline,
+            budget: {
+              connectOrCreate: {
+                where: {
+                  userId_name: {
+                    userId: request.user.id,
+                    name: "Default Budget",
+                  },
                 },
-              },
-              create: {
-                userId: userId,
-                name: "Default Budget",
-                total: 0,
+                create: {
+                  userId: request.user.id,
+                  name: "Default Budget",
+                  total: 0,
+                },
               },
             },
           },
-        },
-        include: {
-          savings: true,
-        },
-      });
-      return reply.status(201).send(goal);
+        });
+        return reply.status(201).send(savingGoal);
+      } catch (error) {
+        console.error("Error creating saving goal:", error);
+        return reply.status(500).send({ error: "Internal Server Error" });
+      }
     }
   );
 }
