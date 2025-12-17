@@ -1,11 +1,8 @@
-import type { Saving } from '@/types'
+import type { Saving, SavingInput } from '@/types'
 import { createApiClerkClient } from './apiClerkClient'
 import type { AxiosResponse } from 'axios'
 
 export const useSavings = () => {
-  type SavingInput = Omit<Saving, 'id'> & {
-    savingGoalId?: string
-  }
   const api = createApiClerkClient()
 
   return {

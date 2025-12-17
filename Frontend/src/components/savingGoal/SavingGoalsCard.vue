@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import type { SavingGoal } from '@/types'
-import Button from './ui/button/Button.vue'
-import Card from './ui/card/Card.vue'
-import CardContent from './ui/card/CardContent.vue'
+import Button from '../ui/button/Button.vue'
+import Card from '../ui/card/Card.vue'
+import CardContent from '../ui/card/CardContent.vue'
 import { computed } from 'vue'
 
+type SavingGoalView = SavingGoal & {
+  progress: number
+  remainingAmount: number
+  isCompleted: boolean
+  monthlyAmount: number
+  dailyAmount: number
+}
+
 const props = defineProps<{
-  goal: SavingGoal & {
-    process?: number
-    remainingAmount?: number
-    isCompleted?: boolean
-  }
+  goal: SavingGoalView
   icon?: string
 }>()
 
@@ -18,86 +22,79 @@ const emit = defineEmits<{
   edit: [goal: SavingGoal]
 }>()
 
-const formattedDeadline = computed(() => {
-  if (!props.goal.deadline) return 'Brak terminu'
-  return new Date(props.goal.deadline).toLocaleDateString('pl-PL', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-})
-
-const progress = computed(() => {
-  return props.goal.process
-    ? Math.round(props.goal.process)
-    : Math.round((props.goal.currentAmount / props.goal.targetAmount) * 100)
-})
-
-const remainingAmount = computed(() => {
-  return props.goal.remainingAmount ?? props.goal.targetAmount - props.goal.currentAmount
-})
-
-const monthly = computed(() => {
-  if (!props.goal.deadline || remainingAmount.value <= 0) return 0
-
-  const now = new Date()
-  const deadline = new Date(props.goal.deadline)
-
-  let diffMonths = (deadline.getFullYear() - now.getFullYear()) * 12
-  diffMonths += deadline.getMonth() - now.getMonth()
-
-  if (deadline.getDate() < now.getDate()) {
-    diffMonths--
-  }
-
-  if (diffMonths <= 0) return remainingAmount.value
-  return Math.ceil(remainingAmount.value / diffMonths)
-})
+const formattedDeadline = computed(() =>
+  props.goal.deadline ? new Date(props.goal.deadline).toLocaleDateString('pl-PL') : 'Brak terminu',
+)
 </script>
 <template>
   <Card>
-    <CardContent class="space-y-4">
-      <h2 class="text-xl font-semibold">Nowy Cel Oszczędnościowy</h2>
-      <div
-        class="w-full max-w-[350px] bg-gradient-to-br from-orange-50 via-orange-100 to-orange-200"
-      >
-        <div class="">
-          <div class="">icona</div>
-          <div class="">
-            <h2>{{ goal.name }}</h2>
-            <p></p>
+    <CardContent
+      class="space-y-5 bg-gradient-to-tl from-orange-50 via-orange-100 to-orange-200 border rounded-xl p-4"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div
+            class="flex h-10 w-10 items-center justify-center rounded-full bg-orange-200 text-xl"
+          >
+            🎯
           </div>
-          <div class="">
-            <p>Postęp</p>
-            <span>{{ progress }}</span>
-          </div>
-          <div class="">
-            <p>Zaoszczędzono:</p>
-            <span>{{ goal.currentAmount }}</span>
-          </div>
-          <div class="">
-            <p>Cel:</p>
-            <span>{{ goal.targetAmount }}</span>
-          </div>
-          <div class="">
-            <p>Pozostało:</p>
-            <span>{{ remainingAmount }}</span>
-          </div>
-          <div class="">
-            <p>Termin:</p>
-            <span>{{ formattedDeadline }}</span>
-          </div>
-          <div class="">
-            <p>Miesięcznie:</p>
-            <span>{{ monthly }}</span>
-          </div>
-          <div class="">
-            <p>Dziennie:</p>
-            <span>kwota</span>
-          </div>
-          <div class="">
-            <Button> Edytuj</Button>
-          </div>
+          <h2 class="text-lg font-semibold text-gray-900">
+            {{ goal.name }}
+          </h2>
+        </div>
+
+        <Button size="sm" variant="outline" @click="emit('edit', goal)"> Edytuj </Button>
+      </div>
+
+      <!-- Progress -->
+      <div class="space-y-1">
+        <div class="flex justify-between text-sm text-gray-600">
+          <span>Postęp</span>
+          <span class="font-medium text-gray-900"> {{ goal.progress }}% </span>
+        </div>
+
+        <div class="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+          <div
+            class="h-full bg-orange-500 transition-all duration-500"
+            :style="{ width: `${goal.progress}%` }"
+          />
+        </div>
+      </div>
+
+      <!-- Amounts grid -->
+      <div class="grid grid-cols-1 gap-4 text-sm">
+        <div class="flex justify-between">
+          <p class="text-gray-800">Zaoszczędzono:</p>
+          <p class="text-lg font-semibold text-gray-900">{{ goal.currentAmount.toFixed(2) }} zł</p>
+        </div>
+
+        <div class="flex justify-between">
+          <p class="text-gray-800">Cel:</p>
+          <p class="text-lg font-semibold text-gray-900">{{ goal.targetAmount.toFixed(2) }} zł</p>
+        </div>
+
+        <div class="flex justify-between">
+          <p class="text-gray-500">Pozostało</p>
+          <p class="text-lg font-semibold text-orange-darker">
+            {{ goal.remainingAmount.toFixed(2) }} zł
+          </p>
+        </div>
+
+        <div class="flex justify-between">
+          <p class="text-gray-800">Termin:</p>
+          <p class="font-medium text-gray-900">
+            {{ formattedDeadline }}
+          </p>
+        </div>
+
+        <div class="flex justify-between">
+          <p class="text-sm text-gray-600">Miesięcznie</p>
+          <p class="text-lg font-semibold text-orange-darker">{{ goal.monthlyAmount.toFixed(2) }} zł</p>
+        </div>
+
+        <div class="flex justify-between">
+          <p class="text-sm text-gray-600">Dziennie</p>
+          <p class="text-lg font-semibold text-orange-darker">{{ goal.dailyAmount.toFixed(2) }} zł</p>
         </div>
       </div>
     </CardContent>

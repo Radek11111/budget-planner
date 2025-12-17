@@ -102,7 +102,6 @@ const biggestExpense = computed(() => {
       </div>
     </div>
     <div class="">
-
       <SavingGoalsList />
     </div>
 

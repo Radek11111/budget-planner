@@ -124,7 +124,7 @@ import { useSavingStore } from '@/stores/savingStore'
 import { onMounted, ref } from 'vue'
 import Swal from 'sweetalert2'
 import { savingCategories } from '@/constants/categories'
-import type { Saving } from '@/types'
+import type {  SavingInput } from '@/types'
 
 const date = ref('')
 const amount = ref(0)
@@ -137,8 +137,7 @@ onMounted(() => {
 })
 const handleSubmit = async () => {
   if (!date.value || amount.value === null || !category.value || !description.value) return
-  const newSaving: Saving = {
-    id: '',
+  const newSaving: SavingInput = {
     date: new Date(date.value).toISOString(),
     amount: amount.value,
     category: category.value,

@@ -1,4 +1,4 @@
-import type { SavingGoal } from '@/types'
+import type { SavingGoal, SavingGoalInput } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useSavingGoal } from '@/api/useSavingGoal'
@@ -61,6 +61,8 @@ export const useSavingGoalStore = defineStore('saving-goal', () => {
       progress: goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0,
       remainingAmount: goal.targetAmount - goal.currentAmount,
       isCompleted: goal.currentAmount >= goal.targetAmount,
+      monthlyAmount: calculateMonthlyAmount(goal),
+      dailyAmount: calculateDailyAmount(goal),
     }))
   })
 
@@ -95,9 +97,7 @@ export const useSavingGoalStore = defineStore('saving-goal', () => {
     }
   }
 
-  const createSavingGoal = async (
-    goalData: Omit<SavingGoal, 'id' | 'createdAt' | 'updatedAt' | 'budgetId'>,
-  ) => {
+  const createSavingGoal = async (goalData: SavingGoalInput) => {
     isLoading.value = true
     error.value = null
     try {
@@ -147,15 +147,6 @@ export const useSavingGoalStore = defineStore('saving-goal', () => {
     }
   }
 
-  const addAmountToGoal = async (id: string, amount: number) => {
-    const goalAmount = savingGoal.value.find((goal) => goal.id === id)
-    if (!goalAmount) {
-      error.value = 'Saving goal not found'
-      throw new Error('Saving goal not found')
-    }
-    const newAmount = goalAmount.currentAmount + amount
-    return await editSavingGoal(id, { currentAmount: newAmount })
-  }
   const getGoalById = (id: string) => {
     return savingGoal.value.find((goal) => goal.id === id)
   }
@@ -178,7 +169,6 @@ export const useSavingGoalStore = defineStore('saving-goal', () => {
     createSavingGoal,
     editSavingGoal,
     removeSavingGoal,
-    addAmountToGoal,
     getGoalById,
     clearError,
     calculateMonthlyAmount,

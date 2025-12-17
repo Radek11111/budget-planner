@@ -15,7 +15,7 @@ const currentAmount = ref(0)
 const showResults = ref(false)
 const goalName = ref('')
 
-const mockGoal = computed<SavingGoal>(() => ({
+const calculationGoal = computed<SavingGoal>(() => ({
   id: '',
   name: goalName.value,
   targetAmount: targetAmount.value,
@@ -58,14 +58,14 @@ const monthsRemaining = computed(() => {
 
 const monthlyAmount = computed(() => {
   if (!deadline.value || targetAmount.value <= 0) return 0
-  const amount = store.calculateMonthlyAmount(mockGoal.value)
-  
+  const amount = store.calculateMonthlyAmount(calculationGoal.value)
+
   return Math.ceil(amount > 0 ? amount : 0)
 })
 
 const dailyAmount = computed(() => {
   if (!deadline.value || targetAmount.value <= 0) return 0
-  const amount = store.calculateDailyAmount(mockGoal.value)
+  const amount = store.calculateDailyAmount(calculationGoal.value)
   return Math.ceil(amount > 0 ? amount : 0)
 })
 
@@ -77,20 +77,19 @@ const progressPercentage = computed(() => {
 })
 
 const canCalculate = computed(() => {
-  return goalName.value && targetAmount.value > 0 && deadline.value
+  return (
+    goalName.value.trim().length > 0 &&
+    targetAmount.value > 0 &&
+    deadline.value &&
+    new Date(deadline.value) > new Date()
+  )
 })
-
 const calculate = () => {
   if (canCalculate.value) {
     showResults.value = true
   }
 }
-
-watch([targetAmount, deadline, currentAmount, goalName], () => {
-  if (showResults.value) {
-    showResults.value = false
-  }
-})
+watch([targetAmount, deadline, currentAmount, goalName], () => (showResults.value = false))
 
 const saveAsGoal = async () => {
   if (!canCalculate.value) return
@@ -98,12 +97,10 @@ const saveAsGoal = async () => {
     await store.createSavingGoal({
       name: goalName.value,
       targetAmount: targetAmount.value,
-      currentAmount: currentAmount.value,
       deadline: new Date(deadline.value).toISOString(),
     })
     goalName.value = ''
     targetAmount.value = 0
-    currentAmount.value = 0
     deadline.value = ''
     showResults.value = false
 
@@ -205,7 +202,7 @@ const saveAsGoal = async () => {
           >
             <div class="flex flex-col items-center text-center space-y-2">
               <h3 class="text-lg font-semibold mb-1">Twój plan oszczędzania:</h3>
-              <p class="text-sm text-gray-600 mb-6">Do celu pozostało {{ daysRemaining }}</p>
+              <p class="text-sm text-gray-600 mb-6">Do celu pozostało {{ daysRemaining }} dni</p>
             </div>
 
             <div class="p-4 bg-white rounded-lg">
