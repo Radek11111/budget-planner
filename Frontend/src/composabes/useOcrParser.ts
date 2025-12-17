@@ -80,6 +80,10 @@ export const useOcrParser = () => {
   }
 
   return {
+    date,
+    amount,
+    description,
+    category,
     normalizeDate,
     handleOcrParsed,
   }
