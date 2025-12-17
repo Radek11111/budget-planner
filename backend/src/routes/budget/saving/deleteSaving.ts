@@ -7,10 +7,41 @@ export async function deleteSaving(server: FastifyInstance) {
     "/saving/:id",
     { preHandler: authMiddleware },
     async (request, reply) => {
+      if (!request.user) {
+        return reply.status(401).send({ error: "Unauthorized" });
+      }
       const { id } = request.params as { id: string };
       try {
-        await db.saving.delete({
-          where: { id: id },
+        const saving = await db.saving.findFirst({
+          where: {
+            id,
+            budget: {
+              userId: request.user.id,
+            },
+          },
+          select: {
+            id: true,
+            amount: true,
+            savingGoalId: true,
+          },
+        });
+        if (!saving) {
+          return reply.status(404).send({ error: "Saving not found" });
+        }
+        await db.$transaction(async (tx: any) => {
+          await tx.saving.delete({
+            where: { id },
+          });
+          if (saving.savingGoalId) {
+            await tx.savingGoal.update({
+              where: { id: saving.savingGoalId },
+              data: {
+                currentAmount: {
+                  decrement: saving.amount,
+                },
+              },
+            });
+          }
         });
       } catch (error) {
         console.error("Error deleting saving:", error);

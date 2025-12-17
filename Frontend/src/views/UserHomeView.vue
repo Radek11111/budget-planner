@@ -10,6 +10,8 @@ import dayjs from 'dayjs'
 import MonthlyOverview from '@/components/transactionReview/MonthlyOverview.vue'
 import ExpenseCategoriesPieChart from '@/components/transactionReview/ExpenseCategoriesPieChart.vue'
 import RecentTransactions from '@/components/transactionReview/RecentTransactions.vue'
+import SavingGoalsCalculate from '@/components//savingGoal/SavingGoalsCalculate.vue'
+import SavingGoalsList from '@/components/savingGoal/SavingGoalsList.vue'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
@@ -94,11 +96,15 @@ const biggestExpense = computed(() => {
         <MonthlyOverview />
       </div>
       <div class="flex flex-col gap-6 md:border-l-1 md:pl-6">
-        
-          <ExpenseCategoriesPieChart />
-        
+        <ExpenseCategoriesPieChart />
+
         <RecentTransactions />
       </div>
     </div>
+    <div class="">
+      <SavingGoalsList />
+    </div>
+
+    <SavingGoalsCalculate />
   </div>
 </template>

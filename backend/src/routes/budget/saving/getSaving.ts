@@ -7,17 +7,18 @@ export async function getSaving(server: FastifyInstance) {
     "/saving",
     { preHandler: authMiddleware },
     async (request, reply) => {
+      if (!request.user) {
+        return reply.status(401).send({ error: "Unauthorized" });
+      }
+
       try {
-        if (!request.user) {
-          return reply.status(401).send({ error: "Unauthorized" });
-        }
         const userId = request.user.id;
         const { year, month } = request.query as {
           year?: string;
           month?: string;
         };
 
-        let dataFilter = {};
+        let dataFilter: any = undefined;
 
         if (year && month) {
           const start = new Date(Number(year), Number(month) - 1, 1);
@@ -39,11 +40,24 @@ export async function getSaving(server: FastifyInstance) {
           };
         }
         const savings = await db.saving.findMany({
-          where: { budget: { userId }, ...dataFilter },
+          where: {
+            budget: { userId },
+            ...(dataFilter && { date: dataFilter.date }),
+          },
 
           orderBy: { date: "desc" },
           include: {
-            budget: true,
+            savingGoal: {
+              select: {
+                id: true,
+                name: true,
+                targetAmount: true,
+                currentAmount: true,
+                deadline: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
           },
         });
         return reply.status(200).send(savings);

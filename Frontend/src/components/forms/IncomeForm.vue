@@ -137,6 +137,7 @@ const store = useIncomeStore()
 
 onMounted(() => {
   store.fetchMonthlyIncomes()
+  console.log('Fetched yearly incomes', store.yearlyIncomes)
 })
 
 const handleSubmit = async () => {

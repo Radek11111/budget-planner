@@ -1,5 +1,5 @@
 import { useSavings } from '@/api/useSavings'
-import type { Saving } from '@/types'
+import type { Saving, SavingInput } from '@/types'
 import dayjs from 'dayjs'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -51,7 +51,7 @@ export const useSavingStore = defineStore('saving', () => {
     }
   }
 
-  const addNewSaving = async (saving: Saving) => {
+  const addNewSaving = async (saving: SavingInput) => {
     try {
       await addSaving(saving)
       await fetchMonthlySavings()

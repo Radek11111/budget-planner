@@ -27,8 +27,11 @@ onMounted(async () => {
       incomeStore.fetchMonthlyIncomes(currentYear, currentMonth),
       ,
       expenseStore.fetchMonthlyExpenses(currentYear, currentMonth),
-      savingStore.fetchMonthlySavings(currentMonth, currentYear),
+      savingStore.fetchMonthlySavings( currentYear, currentMonth),
     ])
+      console.log("[Dashboard] Incomes fetched:", incomeStore.monthlyIncomes)
+    console.log("[Dashboard] Expenses fetched:", expenseStore.monthlyExpenses)
+    console.log("[Dashboard] Savings fetched:", savingStore.monthlySavings)
   } catch (error) {
     console.error('Error fetching data:', error)
     Swal.fire({
@@ -45,6 +48,7 @@ onMounted(async () => {
 const totalIncome = useTotalAmount(computed(() => incomeStore.monthlyIncomes))
 const totalExpense = useTotalAmount(computed(() => expenseStore.monthlyExpenses))
 const totalSaving = useTotalAmount(computed(() => savingStore.monthlySavings))
+
 
 // Function percentage
 const expensesPercentage = computed(() =>
@@ -64,6 +68,16 @@ const tabs = [
   { id: 'expenses', name: 'Wydatki', icon: 'fa-shopping-cart' },
   { id: 'savings', name: 'Oszczędności', icon: 'fa-piggy-bank' },
 ]
+
+console.log("[Dashboard] Initial state:", {
+  incomeStore,
+  expenseStore,
+  savingStore,
+  totalIncome: totalIncome.value,
+  totalExpense: totalExpense.value,
+  totalSaving: totalSaving.value,
+})
+
 </script>
 
 <template v-if="!isLoading">

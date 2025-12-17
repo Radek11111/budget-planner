@@ -27,6 +27,7 @@ model Budget {
   incomes     Income[]
   expenses    Expense[]
   savings     Saving[]
+  savingGoals SavingGoal[]
  @@unique([userId, name])
 }
 
@@ -58,4 +59,19 @@ model Saving {
   amount      Float
   budget Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
   budgetId    String
+  savingGoal SavingGoal? @relation(fields: [savingGoalId], references: [id], onDelete: SetNull)
+  savingGoalId String?
+}
+
+model SavingGoal {
+  id String @id @default(cuid())
+  name String
+  targetAmount Float
+  currentAmount Float @default(0)
+  deadline DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  budgetId String
+  budget Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  savings Saving[]
 }
