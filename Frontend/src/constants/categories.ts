@@ -57,3 +57,24 @@ export const categoryStyles: Record<
   Zakupy: { color: 'bg-teal-100 text-teal-600', icon: ShoppingCart },
   Inne: { color: 'bg-gray-100 text-gray-500', icon: Circle },
 }
+
+export const categoryOCRMap: { [key: string]: string } = {
+  Biedronka: 'Zakupy',
+  Lidl: 'Zakupy',
+  Żabka: 'Zakupy',
+  Carrefour: 'Zakupy',
+  Auchan: 'Zakupy',
+  Netto: 'Zakupy',
+  Lewiatan: 'Zakupy',
+  Kaufland: 'Zakupy',
+  Tesco: 'Zakupy',
+  Aldi: 'Zakupy',
+  BP: 'Transport',
+  Shell: 'Transport',
+  Orlen: 'Transport',
+  Poczta: 'Rachunki',
+  'Poczta Polska': 'Rachunki',
+  InPost: 'Rachunki',
+  DHL: 'Rachunki',
+  UPS: 'Rachunki',
+}

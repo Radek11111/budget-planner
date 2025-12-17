@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { BudgetQuerySchema } from "../validation/BudgetQuerySchema";
 
+import BudgetSchema from "../validation/BudgetSchema";
 import TransactionSchema from "../validation/TransactionSchema";
 
 export interface FinancialEntry {
