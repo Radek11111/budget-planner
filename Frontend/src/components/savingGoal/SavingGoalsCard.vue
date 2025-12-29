@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import type { SavingGoal } from '@/types'
+import type { SavingGoal, SavingGoalView } from '@/types'
 import Button from '../ui/button/Button.vue'
 import Card from '../ui/card/Card.vue'
 import CardContent from '../ui/card/CardContent.vue'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 
-type SavingGoalView = SavingGoal & {
-  progress: number
-  remainingAmount: number
-  isCompleted: boolean
-  monthlyAmount: number
-  dailyAmount: number
-}
+
 
 const props = defineProps<{
   goal: SavingGoalView
