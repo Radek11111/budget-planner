@@ -1,4 +1,3 @@
-
 export interface TransactionBase {
   id: string
   date: Date | string
@@ -32,15 +31,24 @@ export interface SavingGoal {
   id: string
   name: string
   targetAmount: number
-  currentAmount: number
   deadline: string
   createdAt: string
   updatedAt: string
   budgetId: string
+  savings?: Saving[]
 }
 
 export interface SavingGoalInput {
   name: string
   targetAmount: number
   deadline: string
+}
+
+export interface SavingGoalView extends SavingGoal {
+  currentAmount: number
+  progress: number
+  remainingAmount: number
+  isCompleted: boolean
+  monthlyAmount: number
+  dailyAmount: number
 }

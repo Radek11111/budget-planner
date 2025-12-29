@@ -1,4 +1,4 @@
-import type { SavingGoal, SavingGoalInput } from '@/types'
+import type { SavingGoal, SavingGoalInput, SavingGoalView } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useSavingGoal } from '@/api/useSavingGoal'
@@ -10,43 +10,30 @@ export const useSavingGoalStore = defineStore('saving-goal', () => {
 
   const { getSavingGoal, addSavingGoal, deleteSavingGoal, updateSavingGoal } = useSavingGoal()
 
-  const calculateMonthlyAmount = (goal: SavingGoal) => {
-    if (!goal.deadline || goal.currentAmount >= goal.targetAmount) return 0
+  const calculateMonthlyAmount = (
+    targetAmount: number,
+    currentAmount: number,
+    deadline?: string,
+  ) => {
+    if (!deadline || currentAmount >= targetAmount) return 0
 
     const now = new Date()
-    const deadline = new Date(goal.deadline)
-    const remaining = goal.targetAmount - goal.currentAmount
+    const endDate = new Date(deadline)
+    const remaining = targetAmount - currentAmount
 
-    let monthsDiff = (deadline.getFullYear() - now.getFullYear()) * 12
-    monthsDiff += deadline.getMonth() - now.getMonth()
-
-    if (deadline.getDate() < now.getDate()) {
-      monthsDiff--
-    }
-
-    if (monthsDiff <= 0) return remaining
-
-    const remainingDays = Math.max(
-      0,
-      Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)),
-    )
-    const exactMonths = remainingDays / 30.44
-    return remaining / Math.max(1, exactMonths)
+    const days = Math.max(1, Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+    const months = days / 30.44
+    return remaining / months
   }
 
-  const calculateDailyAmount = (goal: SavingGoal) => {
-    if (!goal.deadline || goal.currentAmount >= goal.targetAmount) return 0
+  const calculateDailyAmount = (targetAmount: number, currentAmount: number, deadline?: string) => {
+    if (!deadline || currentAmount >= targetAmount) return 0
 
     const now = new Date()
-    const deadline = new Date(goal.deadline)
-    const remaining = goal.targetAmount - goal.currentAmount
+    const endDate = new Date(deadline)
 
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    const targetDate = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate())
-
-    const daysDiff = Math.ceil((targetDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-    if (daysDiff <= 0) return remaining
-    return remaining / daysDiff
+    const days = Math.max(1, Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+    return (targetAmount - currentAmount) / days
   }
 
   const sortedGoals = computed(() => {
@@ -55,15 +42,23 @@ export const useSavingGoalStore = defineStore('saving-goal', () => {
     )
   })
 
-  const goalsWithProgress = computed(() => {
-    return savingGoal.value.map((goal) => ({
-      ...goal,
-      progress: goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0,
-      remainingAmount: goal.targetAmount - goal.currentAmount,
-      isCompleted: goal.currentAmount >= goal.targetAmount,
-      monthlyAmount: calculateMonthlyAmount(goal),
-      dailyAmount: calculateDailyAmount(goal),
-    }))
+  const goalsWithProgress = computed<SavingGoalView[]>(() => {
+    return savingGoal.value.map((goal) => {
+      const currentAmount = goal.savings?.reduce((sum, s) => sum + s.amount, 0) ?? 0
+
+      const progress =
+        goal.targetAmount > 0 ? Math.min(100, (currentAmount / goal.targetAmount) * 100) : 0
+
+      return {
+        ...goal,
+        currentAmount,
+        progress,
+        remainingAmount: goal.targetAmount - currentAmount,
+        isCompleted: currentAmount >= goal.targetAmount,
+        monthlyAmount: calculateMonthlyAmount(goal.targetAmount, currentAmount, goal.deadline),
+        dailyAmount: calculateDailyAmount(goal.targetAmount, currentAmount, goal.deadline),
+      }
+    })
   })
 
   const activeGoals = computed(() => {
@@ -75,7 +70,7 @@ export const useSavingGoalStore = defineStore('saving-goal', () => {
   })
 
   const totalSavedAmount = computed(() => {
-    return savingGoal.value.reduce((sum, goal) => sum + goal.currentAmount, 0)
+    return goalsWithProgress.value.reduce((sum, goal) => sum + goal.currentAmount, 0)
   })
 
   const totalTargetAmount = computed(() => {
@@ -85,7 +80,7 @@ export const useSavingGoalStore = defineStore('saving-goal', () => {
   const fetchSavingGoals = async () => {
     isLoading.value = true
     error.value = null
-    savingGoal.value = []
+
     try {
       const goals = await getSavingGoal()
       savingGoal.value = goals
