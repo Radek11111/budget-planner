@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import type { SavingGoal } from '@/types'
+import type { SavingGoal, SavingGoalView } from '@/types'
 import Button from '../ui/button/Button.vue'
 import Card from '../ui/card/Card.vue'
 import CardContent from '../ui/card/CardContent.vue'
 import { computed } from 'vue'
 
-type SavingGoalView = SavingGoal & {
-  progress: number
-  remainingAmount: number
-  isCompleted: boolean
-  monthlyAmount: number
-  dailyAmount: number
-}
+
 
 const props = defineProps<{
   goal: SavingGoalView
@@ -25,6 +19,9 @@ const emit = defineEmits<{
 const formattedDeadline = computed(() =>
   props.goal.deadline ? new Date(props.goal.deadline).toLocaleDateString('pl-PL') : 'Brak terminu',
 )
+
+
+
 </script>
 <template>
   <Card>
@@ -89,12 +86,16 @@ const formattedDeadline = computed(() =>
 
         <div class="flex justify-between">
           <p class="text-sm text-gray-600">Miesięcznie</p>
-          <p class="text-lg font-semibold text-orange-darker">{{ goal.monthlyAmount.toFixed(2) }} zł</p>
+          <p class="text-lg font-semibold text-orange-darker">
+            {{ goal.monthlyAmount.toFixed(2) }} zł
+          </p>
         </div>
 
         <div class="flex justify-between">
           <p class="text-sm text-gray-600">Dziennie</p>
-          <p class="text-lg font-semibold text-orange-darker">{{ goal.dailyAmount.toFixed(2) }} zł</p>
+          <p class="text-lg font-semibold text-orange-darker">
+            {{ goal.dailyAmount.toFixed(2) }} zł
+          </p>
         </div>
       </div>
     </CardContent>

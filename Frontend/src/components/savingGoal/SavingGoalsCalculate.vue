@@ -15,17 +15,6 @@ const currentAmount = ref(0)
 const showResults = ref(false)
 const goalName = ref('')
 
-const calculationGoal = computed<SavingGoal>(() => ({
-  id: '',
-  name: goalName.value,
-  targetAmount: targetAmount.value,
-  currentAmount: currentAmount.value,
-  deadline: deadline.value,
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-  budgetId: '',
-}))
-
 const remainingAmount = computed(() => {
   return Math.max(0, (targetAmount.value ?? 0) - (currentAmount.value ?? 0))
 })
@@ -58,15 +47,19 @@ const monthsRemaining = computed(() => {
 
 const monthlyAmount = computed(() => {
   if (!deadline.value || targetAmount.value <= 0) return 0
-  const amount = store.calculateMonthlyAmount(calculationGoal.value)
+  const amount = store.calculateMonthlyAmount(
+    targetAmount.value,
+    currentAmount.value,
+    deadline.value,
+  )
 
-  return Math.ceil(amount > 0 ? amount : 0)
+  return Math.ceil(amount)
 })
 
 const dailyAmount = computed(() => {
   if (!deadline.value || targetAmount.value <= 0) return 0
-  const amount = store.calculateDailyAmount(calculationGoal.value)
-  return Math.ceil(amount > 0 ? amount : 0)
+  const amount = store.calculateDailyAmount(targetAmount.value, currentAmount.value, deadline.value)
+  return Math.ceil(amount)
 })
 
 const progressPercentage = computed(() => {

@@ -11,12 +11,25 @@ import { useTotalAmount } from '@/composabes/useTotalAmount'
 import { useSprending } from '../composabes/useSprending'
 import FinancePieChart from '@/components/FinancePieChart.vue'
 import dayjs from 'dayjs'
+import { useSavingGoalStore } from '@/stores/savingGoalStore'
 
 const isLoading = ref(false)
 const incomeStore = useIncomeStore()
 const expenseStore = useExpenseStore()
 const savingStore = useSavingStore()
 const { useSpendingWarning } = useSprending()
+const savingGoalStore = useSavingGoalStore()
+
+const handleSavingAdded = async () => {
+  const year = dayjs().year()
+  const month = dayjs().month() + 1
+
+  await Promise.all([
+    savingStore.fetchMonthlySavings(year, month),
+    savingGoalStore.fetchSavingGoals(),
+  ])
+}
+
 
 onMounted(async () => {
   const currentYear = dayjs().year()
@@ -25,13 +38,10 @@ onMounted(async () => {
     isLoading.value = true
     await Promise.all([
       incomeStore.fetchMonthlyIncomes(currentYear, currentMonth),
-      ,
       expenseStore.fetchMonthlyExpenses(currentYear, currentMonth),
-      savingStore.fetchMonthlySavings( currentYear, currentMonth),
+      savingStore.fetchMonthlySavings(currentYear, currentMonth),
+      
     ])
-      console.log("[Dashboard] Incomes fetched:", incomeStore.monthlyIncomes)
-    console.log("[Dashboard] Expenses fetched:", expenseStore.monthlyExpenses)
-    console.log("[Dashboard] Savings fetched:", savingStore.monthlySavings)
   } catch (error) {
     console.error('Error fetching data:', error)
     Swal.fire({
@@ -48,7 +58,6 @@ onMounted(async () => {
 const totalIncome = useTotalAmount(computed(() => incomeStore.monthlyIncomes))
 const totalExpense = useTotalAmount(computed(() => expenseStore.monthlyExpenses))
 const totalSaving = useTotalAmount(computed(() => savingStore.monthlySavings))
-
 
 // Function percentage
 const expensesPercentage = computed(() =>
@@ -68,16 +77,6 @@ const tabs = [
   { id: 'expenses', name: 'Wydatki', icon: 'fa-shopping-cart' },
   { id: 'savings', name: 'Oszczędności', icon: 'fa-piggy-bank' },
 ]
-
-console.log("[Dashboard] Initial state:", {
-  incomeStore,
-  expenseStore,
-  savingStore,
-  totalIncome: totalIncome.value,
-  totalExpense: totalExpense.value,
-  totalSaving: totalSaving.value,
-})
-
 </script>
 
 <template v-if="!isLoading">
@@ -214,7 +213,7 @@ console.log("[Dashboard] Initial state:", {
           <!-- Expenses Tab -->
           <ExpenseForm v-if="activeTab === 'expenses'" />
           <!-- Savings Tab -->
-          <SavingForm v-if="activeTab === 'savings'" />
+          <SavingForm v-if="activeTab === 'savings'" @saving-added="handleSavingAdded" />
         </div>
       </div>
     </div>

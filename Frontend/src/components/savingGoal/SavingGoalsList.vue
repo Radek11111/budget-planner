@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useSavingGoalStore } from '../../stores/savingGoalStore'
 import SavingGoalsCard from './SavingGoalsCard.vue'
 import Card from '../ui/card/Card.vue'
@@ -13,6 +13,8 @@ onMounted(() => {
 const onEditGoal = (goal: any) => {
   console.log('Edit goal:', goal)
 }
+
+
 </script>
 
 <template>

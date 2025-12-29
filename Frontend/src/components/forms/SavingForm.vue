@@ -48,6 +48,28 @@
         </div>
       </div>
       <div class="">
+        <label for="savingGoal" class="block text-gray-700 mb-2"
+          >Cel oszczędnościowy (opcjonalnie)</label
+        >
+        <div class="relative">
+          <select
+            id="savingGoal"
+            v-model="savingGoals"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#FFB347]"
+          >
+            <option value="" disabled>Wybierz cel</option>
+            <option v-for="goal in savingGoalStore.savingGoal" :key="goal.id" :value="goal.id">
+              {{ goal.name }}
+            </option>
+          </select>
+          <div
+            class="pointer-events-none absolute inset-y-0 right-0 flex items center px-2 text-gray-700 items-center"
+          >
+            <v-icon name="la-angle-double-down-solid" scale="1" fill="#FFB347" animation="float" />
+          </div>
+        </div>
+      </div>
+      <div class="">
         <label for="savingDescription" class="block text-gray-700 mb-2">Opis</label>
         <input
           type="text"
@@ -121,10 +143,14 @@
 </template>
 <script setup lang="ts">
 import { useSavingStore } from '@/stores/savingStore'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import Swal from 'sweetalert2'
 import { savingCategories } from '@/constants/categories'
-import type {  SavingInput } from '@/types'
+import type { SavingInput } from '@/types'
+import { useSavingGoalStore } from '@/stores/savingGoalStore'
+
+const savingGoalStore = useSavingGoalStore()
+const savingGoals = ref<string | null>(null)
 
 const date = ref('')
 const amount = ref(0)
@@ -132,9 +158,13 @@ const category = ref('')
 const description = ref('')
 const store = useSavingStore()
 
-onMounted(() => {
-  store.fetchMonthlySavings()
+onMounted(async () => {
+  await Promise.all([store.fetchMonthlySavings(), savingGoalStore.fetchSavingGoals()])
 })
+
+const emit = defineEmits<{
+  (event: 'saving-added'): void
+}>()
 const handleSubmit = async () => {
   if (!date.value || amount.value === null || !category.value || !description.value) return
   const newSaving: SavingInput = {
@@ -142,14 +172,18 @@ const handleSubmit = async () => {
     amount: amount.value,
     category: category.value,
     description: description.value,
+    savingGoalId: savingGoals.value || undefined,
   }
   try {
     await store.addNewSaving(newSaving)
+    emit('saving-added')
+
     // Reset
     date.value = ''
     amount.value = 0
     category.value = ''
     description.value = ''
+    savingGoals.value = null
   } catch (e) {
     console.error('Błąd podczas dodawania oszczędności:', e)
     alert('Wystąpił błąd podczas dodawania oszczędności. Spróbuj ponownie.')
@@ -194,4 +228,10 @@ const formatDate = (dateStr: string | Date) =>
     month: '2-digit',
     day: '2-digit',
   })
+
+watch(savingGoals, (id) => {
+  if (id) {
+    category.value = 'Cel Oszczędnościowy'
+  }
+})
 </script>

@@ -15,7 +15,7 @@ export const useSavingStore = defineStore('saving', () => {
   const fetchMonthlySavings = async (year?: number, month?: number) => {
     isLoading.value = true
     error.value = null
-    monthlySavings.value = []
+
     try {
       const now = dayjs()
       const params = {
@@ -54,7 +54,6 @@ export const useSavingStore = defineStore('saving', () => {
   const addNewSaving = async (saving: SavingInput) => {
     try {
       await addSaving(saving)
-      await fetchMonthlySavings()
     } catch (err) {
       console.error('Failed to add saving:', err)
       throw err
