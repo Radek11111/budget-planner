@@ -1,11 +1,44 @@
 <script setup lang="ts">
 import type { SavingGoal, SavingGoalView } from '@/types'
-import Button from '../ui/button/Button.vue'
+import Swal from 'sweetalert2'
 import Card from '../ui/card/Card.vue'
 import CardContent from '../ui/card/CardContent.vue'
 import { computed } from 'vue'
+import { useSavingGoalStore } from '@/stores/savingGoalStore'
 
+const savingGoalStore = useSavingGoalStore()
 
+const handleDelete = async (goalId: string) => {
+  const result = await Swal.fire({
+    title: 'Czy na pewno chcesz usunąć ten cel oszczędnościowy?',
+    text: 'Ta akcja jest nieodwracalna.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Tak, usuń',
+    cancelButtonText: 'Anuluj',
+  })
+  if (result.isConfirmed) {
+    try {
+      await savingGoalStore.removeSavingGoal(goalId)
+      Swal.fire({
+        title: 'Usunięto!',
+        text: 'Cel oszczędnościowy został usunięty.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+      })
+    } catch (e) {
+      Swal.fire(
+        'Błąd',
+        'Wystąpił błąd podczas usuwania przychodu. Spróbuj ponownie później.',
+        'error',
+      )
+      console.error('Błąd przy usuwaniu przychodu', e)
+    }
+  }
+}
 
 const props = defineProps<{
   goal: SavingGoalView
@@ -19,9 +52,6 @@ const emit = defineEmits<{
 const formattedDeadline = computed(() =>
   props.goal.deadline ? new Date(props.goal.deadline).toLocaleDateString('pl-PL') : 'Brak terminu',
 )
-
-
-
 </script>
 <template>
   <Card>
@@ -39,8 +69,15 @@ const formattedDeadline = computed(() =>
             {{ goal.name }}
           </h2>
         </div>
-
-        <Button size="sm" variant="outline" @click="emit('edit', goal)"> Edytuj </Button>
+        <div class="">
+          <v-icon
+            name="fa-trash-alt"
+            scale="1.2"
+            fill="red"
+            class="cursor-pointer hover:text-red-600 transition-colors"
+            @click="handleDelete(goal.id)"
+          />
+        </div>
       </div>
 
       <!-- Progress -->

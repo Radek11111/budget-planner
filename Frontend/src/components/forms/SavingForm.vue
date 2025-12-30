@@ -202,26 +202,25 @@ const handleDelete = async (id: string) => {
     cancelButtonText: 'Anuluj',
   })
   if (result.isConfirmed) {
-  }
-  try {
-    await store.removeSaving(id)
-    Swal.fire({
-      title: 'Usunięto oszczędność',
-      text: 'Oszczędność została pomyślnie usunięta.',
-      icon: 'success',
-      timer: 1500,
-      showConfirmButton: false,
-    })
-  } catch (e) {
-    Swal.fire(
-      'Błąd',
-      'Wystąpił błąd podczas usuwania przychodu. Spróbuj ponownie później.',
-      'error',
-    )
-    console.error('Błąd przy usuwaniu przychodu', e)
+    try {
+      await store.removeSaving(id)
+      Swal.fire({
+        title: 'Usunięto oszczędność',
+        text: 'Oszczędność została pomyślnie usunięta.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false,
+      })
+    } catch (e) {
+      Swal.fire(
+        'Błąd',
+        'Wystąpił błąd podczas usuwania przychodu. Spróbuj ponownie później.',
+        'error',
+      )
+      console.error('Błąd przy usuwaniu przychodu', e)
+    }
   }
 }
-
 const formatDate = (dateStr: string | Date) =>
   new Date(dateStr).toLocaleDateString('pl-PL', {
     year: 'numeric',
