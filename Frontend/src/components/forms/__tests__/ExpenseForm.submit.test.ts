@@ -1,7 +1,12 @@
+import { mount } from '@vue/test-utils'
+import ExpenseForm from '../ExpenseForm.vue'
+import { useExpenseStore } from '../../../stores/expenseStore'
 import { ref } from 'vue'
-import { vi } from 'vitest'
-import { createTestingPinia } from '@pinia/testing'
-import { useExpenseStore } from '@/stores/expenseStore'
+import { describe, it, expect } from 'vitest'
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
 
 const fetchMonthlyExpenses = vi.fn()
 const addNewExpense = vi.fn()
@@ -15,6 +20,16 @@ vi.mock('@/stores/expenseStore', () => ({
     monthlyExpenses: [],
     isLoading: false,
     error: null,
+  }),
+}))
+
+vi.doMock('@/composabes/useOcrParser', () => ({
+  useOcrParser: () => ({
+    date: ref(''),
+    amount: ref(null),
+    description: ref(''),
+    category: ref(''),
+    handleOcrParsed: vi.fn(),
   }),
 }))
 
@@ -41,9 +56,6 @@ vi.mock('../ReceiptUploader.vue', () => ({
     template: '<div />',
   },
 }))
-
-import { mount } from '@vue/test-utils'
-import ExpenseForm from '../ExpenseForm.vue'
 
 describe('ExpenseForm', () => {
   it('renders correctly', () => {
@@ -77,7 +89,7 @@ it('submits form and calls addNewExpense', async () => {
   await wrapper.find('form').trigger('submit')
 
   const store = useExpenseStore()
-
+  expect(store.addNewExpense).toHaveBeenCalledTimes(1)
   expect(store.addNewExpense).toHaveBeenCalledWith(
     expect.objectContaining({
       amount: 100,
@@ -86,3 +98,4 @@ it('submits form and calls addNewExpense', async () => {
     }),
   )
 })
+

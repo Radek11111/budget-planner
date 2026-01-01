@@ -10,6 +10,7 @@ import { useSprending } from '@/composabes/useSprending'
 
 const { date, amount, description, category, handleOcrParsed } = useOcrParser()
 const { useSprendingDelete, showSuccess, showError } = useSprending()
+const formError = ref('')
 
 const store = useExpenseStore()
 onMounted(() => {
@@ -17,7 +18,12 @@ onMounted(() => {
 })
 
 const handleSubmit = async () => {
-  if (!date.value || amount.value === null || !description.value || !category.value) return
+  formError.value = ''
+  if (!date.value || amount.value === null || !description.value || !category.value) {
+    formError.value = 'Uzupełnij wszystkie wymagane pola'
+    return
+  }
+
   const newExpense: Expense = {
     id: '',
     date: new Date(date.value).toISOString(),
@@ -29,6 +35,8 @@ const handleSubmit = async () => {
     await store.addNewExpense(newExpense)
 
     // Reset
+    formError.value = ''
+
     date.value = ''
     amount.value = 0
     description.value = ''
@@ -118,6 +126,9 @@ const handleDelete = async (id: string) => {
       </div>
     </div>
     <div class="flex items-center gap-4 mb-6">
+      <p v-if="formError" class="text-red-500 text-sm mb-4" data-testid="form-error">
+        {{ formError }}
+      </p>
       <button
         type="submit"
         class="bg-[#FFB347] text-white py-2 px-6 rounded-lg hover:bg-[#FFA533] transition-colors cursor-pointer whitespace-nowrap !rounded-button"
