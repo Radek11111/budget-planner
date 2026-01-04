@@ -6,10 +6,11 @@ import { useExpenseStore } from '../../stores/expenseStore'
 import ReceiptUploader from '../ReceiptUploader.vue'
 import { useOcrParser } from '@/composabes/useOcrParser'
 import { formatDate } from '../../utils/dateFormatter'
-import { useSprending } from '@/composabes/useSprending'
+import { useHandleDeleteForms } from '../../composabes/usehandleDeleteForms'
 
 const { date, amount, description, category, handleOcrParsed } = useOcrParser()
-const { useSprendingDelete, showSuccess, showError } = useSprending()
+const { handleDelete } = useHandleDeleteForms()
+
 const formError = ref('')
 
 const store = useExpenseStore()
@@ -44,18 +45,6 @@ const handleSubmit = async () => {
   } catch (e) {
     console.error('Błąd podczas dodawania wydatku:', e)
     alert('Wystąpił błąd podczas dodawania wydatku. Spróbuj ponownie.')
-  }
-}
-const handleDelete = async (id: string) => {
-  const result = await useSprendingDelete()
-  if (result.isConfirmed) {
-  }
-  try {
-    await store.removeExpense(id)
-    showSuccess()
-  } catch (e) {
-    showError()
-    console.error('Błąd przy usuwaniu wydatku', e)
   }
 }
 </script>
@@ -170,6 +159,7 @@ const handleDelete = async (id: string) => {
           <td class="py-3 px-4 whitespace-nowrap">{{ expense.amount.toFixed(2) }} zł</td>
           <td class="py-3 px-4 whitespace-nowrap">
             <v-icon
+              data-testid="delete-expense"
               name="fa-trash-alt"
               scale="1.2"
               fill="red"
