@@ -1,6 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { useExpenseStore } from '@/stores/expenseStore'
-import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { vi,  it, expect, beforeEach } from 'vitest'
 import type { Expense } from '@/types'
 
 const addExpenseMock = vi.fn()
