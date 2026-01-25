@@ -15,7 +15,5 @@ export const useExpenses = () => {
     },
     addExpense: (data: Expense) => api.post('/budget/expense', data),
     deleteExpense: (id: string) => api.delete(`/budget/expense/${id}`),
-
-   
   }
 }
