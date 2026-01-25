@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ExpenseForm from '@/components/forms/ExpenseForm.vue'
 import { useExpenseStore } from '@/stores/expenseStore'
@@ -53,5 +53,19 @@ describe('ExpenseForm Integration- addNewExpense', () => {
 
     expect(addExpenseMock).toHaveBeenCalledTimes(1)
     expect(store.error).toBeNull()
+  })
+
+  it('handles error when adding new expense fails', async () => {
+    const store = useExpenseStore()
+    addExpenseMock.mockRejectedValueOnce(new Error('API Error'))
+    const wrapper = mount(ExpenseForm, {
+      global: {
+        plugins: [createPinia()],
+        stubs: ['v-icon'],
+      },
+    })
+    await wrapper.find('form').trigger('submit.prevent')
+
+    expect(addExpenseMock).toHaveBeenCalledTimes(1)
   })
 })

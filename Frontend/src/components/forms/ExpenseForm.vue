@@ -44,7 +44,7 @@ const handleSubmit = async () => {
     category.value = ''
   } catch (e) {
     console.error('Błąd podczas dodawania wydatku:', e)
-    alert('Wystąpił błąd podczas dodawania wydatku. Spróbuj ponownie.')
+    formError.value = 'Wystąpił błąd podczas dodawania wydatku'
   }
 }
 </script>
