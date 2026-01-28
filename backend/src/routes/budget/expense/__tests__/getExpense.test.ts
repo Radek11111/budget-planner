@@ -8,13 +8,6 @@ vi.mock("../../../../db", () => ({
   },
 }));
 
-vi.mock("../../../../middleware/authMiddleware", () => ({
-  authMiddleware: async (request: any, reply: any) => {
-    request.user = { id: "user-1" };
-   
-  },
-}));
-
 import { db } from "../../../../db";
 import { buildServer } from "./untils/testServer";
 describe("GET /expense", () => {
@@ -22,6 +15,10 @@ describe("GET /expense", () => {
     vi.clearAllMocks();
   });
   it("returns expenses for the authenticated user", async () => {
+    const authMock = async (req: any) => {
+      req.user = { id: "user-1" };
+    };
+
     (db.expense.findMany as any).mockResolvedValueOnce([
       {
         id: "expense-1",
@@ -31,7 +28,7 @@ describe("GET /expense", () => {
         budget: { userId: "user-1" },
       },
     ]);
-    const app = await buildServer();
+    const app = await buildServer(authMock);
     await app.ready();
 
     const response = await app.inject({
@@ -44,5 +41,59 @@ describe("GET /expense", () => {
     const body = JSON.parse(response.body);
     expect(body).toHaveLength(1);
     expect(body[0].category).toBe("Food");
+  });
+
+  it("returns 401 if user is not authenticated", async () => {
+    const authMock = async () => {};
+    const app = await buildServer(authMock);
+    await app.ready();
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/expense",
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
+  it("returns 500 on db throw error", async () => {
+    const authMock = async (req: any) => {
+      req.user = { id: "user-1" };
+    };
+    (db.expense.findMany as any).mockResolvedValueOnce(new Error("DB Error"));
+
+    const app = await buildServer(authMock);
+    await app.ready();
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/expense",
+    });
+    expect(response.statusCode).toBe(500);
+  });
+
+  it("filters expenses by year and month", async () => {
+      const authMock = async (req: any) => {
+        req.user = { id: "user-1" };
+      };
+
+    (db.expense.findMany as any).mockResolvedValueOnce([]);
+
+    const app = await buildServer(authMock);
+
+    await app.inject({
+      method: "GET",
+      url: "/expense?year=2025&month=1",
+    });
+
+    expect(db.expense.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          date: {
+            gte: new Date(2025, 0, 1),
+            lt: new Date(2025, 1, 1),
+          },
+        }),
+      }),
+    );
   });
 });

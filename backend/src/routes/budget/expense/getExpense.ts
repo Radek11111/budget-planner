@@ -2,10 +2,13 @@ import { db } from "../../../db";
 import { FastifyInstance } from "fastify";
 import { authMiddleware } from "../../../middleware/authMiddleware";
 
-export async function getExpense(server: FastifyInstance) {
+export async function getExpense(
+  server: FastifyInstance,
+  options: { authMiddleware?: any },
+) {
   server.get(
     "/expense",
-    { preHandler: authMiddleware },
+    { preHandler: options.authMiddleware ?? authMiddleware },
     async (request, reply) => {
       try {
         if (!request.user) {
@@ -51,6 +54,6 @@ export async function getExpense(server: FastifyInstance) {
         console.error(error);
         return reply.status(500).send({ error: "Internal Server Error" });
       }
-    }
+    },
   );
 }
