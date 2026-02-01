@@ -30,7 +30,6 @@ const handleSavingAdded = async () => {
   ])
 }
 
-
 onMounted(async () => {
   const currentYear = dayjs().year()
   const currentMonth = dayjs().month() + 1
@@ -40,7 +39,6 @@ onMounted(async () => {
       incomeStore.fetchMonthlyIncomes(currentYear, currentMonth),
       expenseStore.fetchMonthlyExpenses(currentYear, currentMonth),
       savingStore.fetchMonthlySavings(currentYear, currentMonth),
-      
     ])
   } catch (error) {
     console.error('Error fetching data:', error)
@@ -192,6 +190,7 @@ const tabs = [
         <div class="flex flex-wrap border-b border-gray-100">
           <button
             v-for="tab in tabs"
+            :data-testid="`tab-${tab.id}`"
             :key="tab.id"
             @click="activeTab = tab.id"
             :class="[

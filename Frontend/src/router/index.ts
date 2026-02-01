@@ -39,11 +39,11 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const { isSignedIn, isLoaded } = useAuth()
   const userStore = useUserStore()
-  if (!isLoaded.value) {
-    return next()
+  while (!isLoaded.value) {
+    await new Promise((resolve) => setTimeout(resolve, 50))
   }
 
   if (to.meta.requiresAuth && !isSignedIn.value) {

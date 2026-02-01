@@ -60,6 +60,7 @@ const handleSubmit = async () => {
       <div class="">
         <label for="expenseDate" class="block text-gray-700 mb-2">Data</label>
         <input
+          data-testid="expense-date-input"
           type="date"
           id="expenseDate"
           v-model="date"
@@ -70,6 +71,7 @@ const handleSubmit = async () => {
       <div class="">
         <label for="expenseAmount" class="block text-gray-700 mb-2">Kwota (zł)</label>
         <input
+          data-testid="expense-amount-input"
           type="number"
           id="expenseAmount"
           v-model="amount"
@@ -85,6 +87,7 @@ const handleSubmit = async () => {
         <label for="expenseCategory" class="block text-gray-700 mb-2">Kategoria</label>
         <div class="relative">
           <select
+            data-testid="expense-category-input"
             id="expenseCategory"
             v-model="category"
             required
@@ -105,6 +108,7 @@ const handleSubmit = async () => {
       <div class="">
         <label for="expenseDescription" class="block text-gray-700 mb-2">Opis</label>
         <input
+          data-testid="expense-description-input"
           type="text"
           id="expenseDescription"
           v-model="description"
@@ -119,6 +123,7 @@ const handleSubmit = async () => {
         {{ formError }}
       </p>
       <button
+        data-testid="expense-submit-button"
         type="submit"
         class="bg-[#FFB347] text-white py-2 px-6 rounded-lg hover:bg-[#FFA533] transition-colors cursor-pointer whitespace-nowrap !rounded-button"
       >
@@ -143,20 +148,23 @@ const handleSubmit = async () => {
       </thead>
       <tbody>
         <tr
+          data-testid="expense-row"
           v-for="expense in store.monthlyExpenses"
           :key="expense.id"
           class="border-b border-gray-200"
         >
-          <td class="py-3 px-4 whitespace-nowrap">
+          <td data-testid="expense-date-cell" class="py-3 px-4 whitespace-nowrap">
             {{ formatDate(expense.date) }}
           </td>
-          <td class="py-3 px-4 whitespace-nowrap">
+          <td data-testid="expense-category-cell" class="py-3 px-4 whitespace-nowrap">
             {{ expense.category }}
           </td>
-          <td class="py-3 px-4">
+          <td data-testid="expense-description-cell" class="py-3 px-4">
             {{ expense.description }}
           </td>
-          <td class="py-3 px-4 whitespace-nowrap">{{ expense.amount.toFixed(2) }} zł</td>
+          <td data-testid="expense-amount-cell" class="py-3 px-4 whitespace-nowrap">
+            {{ expense.amount.toFixed(2) }} zł
+          </td>
           <td class="py-3 px-4 whitespace-nowrap">
             <v-icon
               data-testid="delete-expense"
