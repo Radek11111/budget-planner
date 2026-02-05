@@ -48,7 +48,7 @@ const biggestExpense = computed(() => {
 </script>
 
 <template>
-  <div class="p-6 space-y-6">
+  <div class="p-6 space-y-6" data-testid="user-home-view">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow">
         <div class="flex flex-col">

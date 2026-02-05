@@ -1,7 +1,15 @@
 import { test, expect } from '@playwright/test'
 
 test('user can add a new expense', async ({ page }) => {
-  await page.goto('http://localhost:5173/dashboard')
+  await page.goto('http://localhost:5173/user')
+
+  await expect(page.getByTestId('dashboard-link')).toBeVisible({ timeout: 10_000 })
+
+  await page.getByTestId('dashboard-link').click()
+
+  await page.waitForURL('**/dashboard')
+
+  await expect(page.getByTestId('dashboard-root')).toBeVisible()
 
   await page.getByTestId('tab-expenses').click()
   await expect(page.getByTestId('expense-date-input')).toBeVisible()
@@ -13,5 +21,7 @@ test('user can add a new expense', async ({ page }) => {
 
   await page.getByTestId('expense-submit-button').click()
 
-  await expect(page.getByTestId('expense-description')).toHaveText('Bus ticket')
+  await expect(page.getByTestId('expense-description-cell')).toHaveText('Bus ticket', {
+    timeout: 5000,
+  })
 })

@@ -20,6 +20,9 @@ export default defineConfig({
       '@/views': fileURLToPath(new URL('./src/views', import.meta.url)),
     },
   },
+  css: {
+    devSourcemap: false, 
+  },
   server: {
     proxy: {
       '/api': {

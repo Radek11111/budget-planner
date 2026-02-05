@@ -30,6 +30,10 @@ coverage
 *.tsbuildinfo
 
 # local env files
+test*
 .env*
 .env.product*
+playwright/.auth/
+playwright/test-results/
+playwright-report/
 

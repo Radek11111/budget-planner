@@ -70,11 +70,12 @@ const handleLinkClick = (path: string) => {
             <img loading="lazy" src="@/assets/image/logo.png" alt="logo" class="h-30 w-45 mr-2" />
           </router-link>
         </div>
-        <div v-if="isLoaded" class="hidden md:flex gap-4 items-center justify-end">
+        <div v-if="isLoaded" class="hidden md:flex gap-4 items-center justify-end" >
           <router-link
             v-if="dashboardLink"
             :to="dashboardLink.to"
             class="btn-primary bg-orange-light text-white font-bold px-5 py-2.5 rounded-lg gap-2"
+            data-testid="dashboard-link"
           >
             {{ dashboardLink.label }}
           </router-link>

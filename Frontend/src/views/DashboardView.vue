@@ -78,7 +78,7 @@ const tabs = [
 </script>
 
 <template v-if="!isLoading">
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50" data-testid="dashboard-root">
     <div v-if="isLoading" class="flex justify-center items-center py-8">
       <v-icon name="la-spinner-solid" scale="3" fill="orange" animation="spin" />
       <p class="text-gray-600">Ładowanie danych...</p>
